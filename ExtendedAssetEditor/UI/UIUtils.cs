@@ -144,7 +144,7 @@ namespace ExtendedAssetEditor.UI
             if(_colorFIeldTemplate == null)
             {
                 // Get the LineTemplate (PublicTransportDetailPanel)
-                UIComponent template = UITemplateManager.Get("LineTemplate");
+                UIComponent template = UITemplateManager.Get("PropertyColorSet");
                 if(template == null) return null;
 
                 // Extract the ColorField

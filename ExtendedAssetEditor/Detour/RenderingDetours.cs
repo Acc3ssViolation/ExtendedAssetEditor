@@ -9,7 +9,7 @@ using ColossalFramework.UI;
 using System.Reflection;
 using ColossalFramework.Packaging;
 
-namespace ExtendedAssetEditor.Rendering
+namespace ExtendedAssetEditor.Detour
 {
     /// <summary>
     /// Handles all changes to rendering of vehicles in the asset editor
@@ -121,6 +121,7 @@ namespace ExtendedAssetEditor.Rendering
             {
                 flags |= Vehicle.Flags.Inverted;
             }
+            // Effect display options
             if(DisplayOptions.activeOptions.Reversed)
             {
                 flags |= Vehicle.Flags.Reversed;

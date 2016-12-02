@@ -47,10 +47,6 @@ namespace ExtendedAssetEditor.UI
                 Debug.Log("Prefab was vehicle");
                 isVisible = false;
             };
-            PrefabWatcher.instance.prefabBecameProp += () =>
-            {
-                isVisible = true;
-            };
 
             CreateComponents();
         }

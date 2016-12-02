@@ -5,7 +5,7 @@ namespace ExtendedAssetEditor
     public class Mod : IUserMod
     {
         public const string name = "Extended Asset Editor";
-        public const string versionString = "0.2";
+        public const string versionString = "0.3";
 
         public string Description
         {

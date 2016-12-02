@@ -182,7 +182,7 @@ namespace ExtendedAssetEditor.UI
                             dlcMask = AssetImporterAssetTemplate.GetAssetDLCMask(trailerInfo)
                         }, UserAssetType.CustomAssetMetaData);
 
-                        // Fuck the locale
+                        // Don't need the locale
 
                         // Update dictonary
                         addedTrailers.Add(m_info.m_trailers[i].m_info.name, trailerInfo);
@@ -231,6 +231,9 @@ namespace ExtendedAssetEditor.UI
             package.Save(GetSavePathName(packageName));
 
             Debug.Log("Finished save for asset " + assetName + " in package " + packageName);
+
+            m_info = null;
+            isVisible = false;
         }
 
         private string GetSavePathName(string saveName)

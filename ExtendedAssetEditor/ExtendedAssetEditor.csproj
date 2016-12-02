@@ -59,18 +59,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetBundles\AssetBundleLoader.cs" />
+    <Compile Include="Detour\DecorationPropertiesPanelDetour.cs" />
     <Compile Include="Detour\DetourItem.cs" />
+    <Compile Include="Detour\PrefabInfoDetour.cs" />
     <Compile Include="Detour\RedirectionHelper.cs" />
     <Compile Include="DisplayOptions.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModLoadingExtension.cs" />
     <Compile Include="PrefabWatcher.cs" />
-    <Compile Include="Rendering\RenderingDetours.cs" />
+    <Compile Include="Detour\RenderingDetours.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\UIDisplayOptions.cs" />
     <Compile Include="UI\UIDoorTool.cs" />
     <Compile Include="UI\UIFloatField.cs" />
-    <Compile Include="UI\UILoadingExtension.cs" />
     <Compile Include="UI\UIMainPanel.cs" />
     <Compile Include="UI\UISavePanel.cs" />
     <Compile Include="UI\UIUtils.cs" />

@@ -14,7 +14,7 @@ namespace ExtendedAssetEditor.UI
         private static UIMainPanel main;
 
         public const int WIDTH = 300;
-        public const int HEIGHT = 400;
+        public const int HEIGHT = 440;
 
         private UIDropDown m_vehicleDropdown;
         private UIPanel m_lightPanel;
@@ -22,18 +22,17 @@ namespace ExtendedAssetEditor.UI
         private UICheckBox m_passengerLightCheckbox;
         private UIButton m_lightAddButton;
         private UIButton m_lightRemoveButton;
-        /*private UITextField m_lightPosX;
-        private UITextField m_lightPosY;
-        private UITextField m_lightPosZ;*/
-
-
         private UIFloatField m_lightPosXField;
         private UIFloatField m_lightPosYField;
         private UIFloatField m_lightPosZField;
-
-
+        private UIPanel m_trailerPanel;
         private UICheckBox m_invertCheckbox;
         private UIButton m_engineButton;
+        private UIButton m_engineCopyButton;
+        private UIButton m_insertTrailerButton;
+
+        private Vector3 m_trailerPanelStart;
+        private Vector3 m_lightPanelStart;
 
         private UIButton m_saveButton;
         private UIButton m_loadButton;
@@ -157,8 +156,15 @@ namespace ExtendedAssetEditor.UI
             m_vehicleDropdown.relativePosition = new Vector3(10, headerHeight + 10);
             m_vehicleDropdown.eventSelectedIndexChanged += DropdownSelctionChanged;
 
+            // Trailer panel
+            m_trailerPanel = AddUIComponent<UIPanel>();
+            m_trailerPanel.size = Vector2.zero;
+            m_trailerPanel.relativePosition = new Vector3(0, headerHeight + 50);
+            UIHelper uiTrailerHelper = new UIHelper(m_trailerPanel);
+            m_trailerPanelStart = m_trailerPanel.relativePosition;
+
             // Checkbox invert
-            m_invertCheckbox = (UICheckBox)uiHelper.AddCheckbox("Is inverted", false, (b) => {
+            m_invertCheckbox = (UICheckBox)uiTrailerHelper.AddCheckbox("Is inverted", false, (b) => {
                 if(!m_checkingEvents) { return; }
 
                 if(m_vehicleDropdown.items.Length > 1)
@@ -168,27 +174,54 @@ namespace ExtendedAssetEditor.UI
                 }
             });
             m_invertCheckbox.width = WIDTH - 20;
-            m_invertCheckbox.relativePosition = new Vector3(10, headerHeight + 50);
+            m_invertCheckbox.relativePosition = new Vector3(10, 0);
 
             // Button engine
-            m_engineButton = UIUtils.CreateButton(this);
+            m_engineButton = UIUtils.CreateButton(m_trailerPanel);
             m_engineButton.eventClicked += (c, b) => {
                 if(!m_checkingEvents) { return; }
 
                 if(m_vehicleDropdown.items.Length > 1)
                 {
-                    m_mainVehicleInfo.m_trailers[m_vehicleDropdown.selectedIndex - 1].m_info = GetEngineAsTrailerUnchecked();
-                    //m_trailerDropwdown.items[m_trailerDropwdown.selectedIndex] = m_vehicleInfo.name;
+                    m_mainVehicleInfo.m_trailers[m_vehicleDropdown.selectedIndex - 1].m_info = m_mainVehicleInfo;
                 }
             };
             m_engineButton.text = "Set engine";
-            m_engineButton.relativePosition = new Vector3(10, headerHeight + 80);
+            m_engineButton.tooltip = "Sets this trailer to the same vehicle as the engine. Recommened to be used for the last trailer only.";
+            m_engineButton.relativePosition = new Vector3(10, 30);
+
+            // Button engine (copy)
+            m_engineCopyButton = UIUtils.CreateButton(m_trailerPanel);
+            m_engineCopyButton.eventClicked += (c, b) => {
+                if(!m_checkingEvents) { return; }
+
+                if(m_vehicleDropdown.items.Length > 1)
+                {
+                    m_mainVehicleInfo.m_trailers[m_vehicleDropdown.selectedIndex - 1].m_info = GetEngineAsTrailerUnchecked();
+                }
+            };
+            m_engineCopyButton.width = 140;
+            m_engineCopyButton.text = "Set engine (copy)";
+            m_engineCopyButton.tooltip = "Sets this trailer to a copy of the engine. This means that you can edit this trailer's settings without it affecting the actual engine.";
+            m_engineCopyButton.relativePosition = new Vector3(WIDTH - 10 - m_engineCopyButton.width, 30);
+
+            // Button insert trailer
+            m_insertTrailerButton = UIUtils.CreateButton(m_trailerPanel);
+            m_insertTrailerButton.eventClicked += (c, b) => {
+                if(!m_checkingEvents) { return; }
+
+                InsertTrailer(m_selectedVehicleInfo, m_vehicleDropdown.selectedIndex);
+            };
+            m_insertTrailerButton.text = "Duplicate";
+            m_insertTrailerButton.tooltip = "Insert another trailer of this type after the currently selected trailer.";
+            m_insertTrailerButton.relativePosition = new Vector3(10, 70);
 
             // Light panel
             m_lightPanel = AddUIComponent<UIPanel>();
-            m_lightPanel.relativePosition = new Vector3(0, headerHeight + 120);
-            m_lightPanel.size = new Vector2(WIDTH, HEIGHT - m_lightPanel.relativePosition.y - 50);
+            m_lightPanel.relativePosition = new Vector3(0, headerHeight + 160);
+            m_lightPanel.size = Vector2.zero;
             UIHelper uiLightsHelper = new UIHelper(m_lightPanel);
+            m_lightPanelStart = m_lightPanel.relativePosition;
 
             // Checkbox passenger light
             m_passengerLightCheckbox = (UICheckBox)uiLightsHelper.AddCheckbox("Has passenger light", false, (b) => {
@@ -237,21 +270,6 @@ namespace ExtendedAssetEditor.UI
             };
 
             // Light pos x
-            /*label = m_lightPanel.AddUIComponent<UILabel>();
-            label.text = "Pos X:";
-            label.relativePosition = new Vector3(10, 112);
-            m_lightPosX = UIUtils.CreateTextField(m_lightPanel);
-            m_lightPosX.relativePosition = new Vector3(70, 110);
-            m_lightPosX.tooltip = "X position of the selected light";
-            m_lightPosX.eventTextChanged += (c, s) => {
-                if(!m_checkingEvents) { return; }
-
-                if(m_selectedVehicleInfo != null && m_selectedVehicleInfo.m_lightPositions?.Length > 0)
-                {
-                    FloatFieldHandler(m_lightPosX, s, ref m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].x);
-                }
-            };*/
-
             m_lightPosXField = UIFloatField.CreateField("Pos X:", m_lightPanel);
             m_lightPosXField.panel.relativePosition = new Vector3(10, 110);
             m_lightPosXField.textField.eventTextChanged += (c, s) => {
@@ -274,20 +292,6 @@ namespace ExtendedAssetEditor.UI
             };
 
             // Light pos y
-            /*label = m_lightPanel.AddUIComponent<UILabel>();
-            label.text = "Pos Y:";
-            label.relativePosition = new Vector3(10, 142);
-            m_lightPosY = UIUtils.CreateTextField(m_lightPanel);
-            m_lightPosY.relativePosition = new Vector3(70, 140);
-            m_lightPosY.tooltip = "Y position of the selected light";
-            m_lightPosY.eventTextChanged += (c, s) => {
-                if(!m_checkingEvents) { return; }
-
-                if(m_selectedVehicleInfo != null && m_selectedVehicleInfo.m_lightPositions?.Length > 0)
-                {
-                    FloatFieldHandler(m_lightPosY, s, ref m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].y);
-                }
-            };*/
             m_lightPosYField = UIFloatField.CreateField("Pos X:", m_lightPanel);
             m_lightPosYField.panel.relativePosition = new Vector3(10, 140);
             m_lightPosYField.textField.eventTextChanged += (c, s) => {
@@ -310,20 +314,6 @@ namespace ExtendedAssetEditor.UI
             };
 
             // Light pos z
-            /*label = m_lightPanel.AddUIComponent<UILabel>();
-            label.text = "Pos Z:";
-            label.relativePosition = new Vector3(10, 172);
-            m_lightPosZ = UIUtils.CreateTextField(m_lightPanel);
-            m_lightPosZ.relativePosition = new Vector3(70, 170);
-            m_lightPosZ.tooltip = "Z position of the selected light";
-            m_lightPosZ.eventTextChanged += (c, s) => {
-                if(!m_checkingEvents) { return; }
-
-                if(m_selectedVehicleInfo != null && m_selectedVehicleInfo.m_lightPositions?.Length > 0)
-                {
-                    FloatFieldHandler(m_lightPosZ, s, ref m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].z);
-                }
-            };*/
             m_lightPosZField = UIFloatField.CreateField("Pos Z:", m_lightPanel);
             m_lightPosZField.panel.relativePosition = new Vector3(10, 170);
             m_lightPosZField.textField.eventTextChanged += (c, s) => {
@@ -345,12 +335,18 @@ namespace ExtendedAssetEditor.UI
                 m_lightPosZField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].z - 0.1f);
             };
 
+            // Color panel
+            /*m_colorPanel = AddUIComponent<UIPanel>();
+            m_colorPanel.size = Vector2.zero;
+            m_colorPanel.relativePosition = new Vector3(0, headerHeight + 200);
+            m_colorPanelStart = m_colorPanel.relativePosition;*/
+
 #if PRERELEASE
             // Save button
             m_saveButton = UIUtils.CreateButton(this);
             m_saveButton.text = "Save Asset";
             m_saveButton.width = (WIDTH - 30) / 2;
-            m_saveButton.relativePosition = new Vector3(10, m_lightPanel.relativePosition.y + m_lightPanel.height + 10);
+            m_saveButton.relativePosition = new Vector3(10, m_lightPanel.relativePosition.y + 200);
             m_saveButton.eventClicked += (c, b) => {
                 if(m_mainVehicleInfo != null && m_savePanel != null)
                 {
@@ -361,10 +357,36 @@ namespace ExtendedAssetEditor.UI
             // Load button
             m_loadButton = UIUtils.CreateButton(this);
             m_loadButton.text = "Load Asset";
+            m_loadButton.tooltip = "TODO: Implement loading";
             m_loadButton.width = (WIDTH - 30) / 2;
-            m_loadButton.relativePosition = new Vector3(20 + m_saveButton.width, m_lightPanel.relativePosition.y + m_lightPanel.height + 10);
+            m_loadButton.relativePosition = new Vector3(20 + m_saveButton.width, m_lightPanel.relativePosition.y + 200);
 #endif
             m_checkingEvents = true;
+        }
+
+        private void InsertTrailer(VehicleInfo trailerInfo, int insertionIndex)
+        {
+            if(m_mainVehicleInfo.m_trailers == null)
+            {
+                if(insertionIndex == 0)
+                {
+                    m_mainVehicleInfo.m_trailers = new VehicleInfo.VehicleTrailer[0];
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            List<VehicleInfo.VehicleTrailer> trailerList = new List<VehicleInfo.VehicleTrailer>();
+            trailerList.AddRange(m_mainVehicleInfo.m_trailers);
+            trailerList.Insert(insertionIndex, new VehicleInfo.VehicleTrailer
+            {
+                m_info = trailerInfo,
+                m_invertProbability = 0,
+                m_probability = 100
+            });
+            m_mainVehicleInfo.m_trailers = trailerList.ToArray();
         }
 
         private void LightSelectionChanged(UIComponent component, int value)
@@ -401,26 +423,36 @@ namespace ExtendedAssetEditor.UI
 
                 if(m_mainVehicleInfo.m_trailers != null && listIndex >= 1 && listIndex <= m_mainVehicleInfo.m_trailers.Length)
                 {
-                    m_invertCheckbox.isVisible = true;
-                    m_engineButton.isVisible = true;
+                    Debug.LogWarning("Selecting trailer start");
+                    // Select a trailer
+                    m_trailerPanel.isVisible = true;
+                    m_trailerPanel.relativePosition = m_trailerPanelStart;
+                    m_lightPanel.relativePosition = m_lightPanelStart;
+                    Debug.LogWarning("Selecting trailer mid");
                     m_selectedVehicleInfo = m_mainVehicleInfo.m_trailers[listIndex - 1].m_info;
                     m_invertCheckbox.isChecked = m_mainVehicleInfo.m_trailers[listIndex - 1].m_invertProbability == 100 ? true : false;
                     if(main == this)
                     {
                         eventSelectedUpdated?.Invoke(m_mainVehicleInfo, listIndex - 1);
                     }
+                    Debug.LogWarning("Selecting trailer end");
                 }
                 else
                 {
+                    Debug.LogWarning("Selecting main start");
+                    // Select main vehicle
                     m_selectedVehicleInfo = m_mainVehicleInfo;
-                    m_invertCheckbox.isVisible = false;
-                    m_engineButton.isVisible = false;
+                    m_trailerPanel.isVisible = false;
+                    m_lightPanel.relativePosition = m_trailerPanelStart;
+                    Debug.LogWarning("Selecting main mid");
                     if(main == this)
                     {
                         eventSelectedUpdated?.Invoke(m_mainVehicleInfo, -1);
                     }
+                    Debug.LogWarning("Selecting main end");
                 }
 
+                Debug.LogWarning("Selecting ai start");
                 if(m_selectedVehicleInfo.m_vehicleAI is TrainAI)
                 {
                     m_lightAddButton.isVisible = true;
@@ -431,6 +463,7 @@ namespace ExtendedAssetEditor.UI
                     m_lightAddButton.isVisible = false;
                     m_lightRemoveButton.isVisible = false;
                 }
+                Debug.LogWarning("Selecting ai end");
 
                 m_checkingEvents = true;
 
@@ -480,6 +513,7 @@ namespace ExtendedAssetEditor.UI
             {
                 m_engineAsTrailer = Util.InstantiateVehicleCopy(m_mainVehicleInfo);
                 m_engineAsTrailer.m_trailers = null;
+                m_engineAsTrailer.name += " (Copy)";
             }
             return m_engineAsTrailer;
         }
@@ -521,7 +555,7 @@ namespace ExtendedAssetEditor.UI
                 {
                     for(int i = 0; i < m_mainVehicleInfo.m_trailers.Length; i++)
                     {
-                        trailerNames[i + 1] = m_mainVehicleInfo.m_trailers[i].m_info.name;
+                        trailerNames[i + 1] = (i + 1) + " - " + m_mainVehicleInfo.m_trailers[i].m_info.name;
                     }
                 }
                 m_vehicleDropdown.items = trailerNames;
