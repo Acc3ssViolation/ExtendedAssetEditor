@@ -100,6 +100,7 @@ namespace ExtendedAssetEditor.UI
             {
                 GameObject.Destroy(g);
             }
+            m_doorMarkers.Clear();
         }
 
         private void CreateComponents()

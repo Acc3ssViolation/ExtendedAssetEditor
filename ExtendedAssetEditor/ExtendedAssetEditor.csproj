@@ -69,8 +69,16 @@
     <Compile Include="PrefabWatcher.cs" />
     <Compile Include="Detour\RenderingDetours.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SnapshotBehaviour.cs" />
+    <Compile Include="UI\Effects\UIAddEffectPanel.cs" />
+    <Compile Include="UI\Effects\UIEffectOptionsPanel.cs" />
+    <Compile Include="UI\Effects\UIEffectPanel.cs" />
+    <Compile Include="UI\Effects\UIFlagsPanel.cs" />
+    <Compile Include="UI\Effects\UIVehicleEffectRow.cs" />
+    <Compile Include="UI\Effects\UIEffectRow.cs" />
     <Compile Include="UI\UIDisplayOptions.cs" />
     <Compile Include="UI\UIDoorTool.cs" />
+    <Compile Include="UI\UIFastList.cs" />
     <Compile Include="UI\UIFloatField.cs" />
     <Compile Include="UI\UIMainPanel.cs" />
     <Compile Include="UI\UISavePanel.cs" />

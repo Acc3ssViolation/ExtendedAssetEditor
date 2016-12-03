@@ -6,6 +6,7 @@ using ColossalFramework.UI;
 using UnityEngine;
 using ColossalFramework;
 using ICities;
+using ExtendedAssetEditor.UI.Effects;
 
 namespace ExtendedAssetEditor.UI
 {
@@ -14,7 +15,7 @@ namespace ExtendedAssetEditor.UI
         private static UIMainPanel main;
 
         public const int WIDTH = 300;
-        public const int HEIGHT = 440;
+        public const int HEIGHT = 480;
 
         private UIDropDown m_vehicleDropdown;
         private UIPanel m_lightPanel;
@@ -36,6 +37,7 @@ namespace ExtendedAssetEditor.UI
 
         private UIButton m_saveButton;
         private UIButton m_loadButton;
+        private UIButton m_effectButton;
 
         private VehicleInfo m_mainVehicleInfo;
         private VehicleInfo m_selectedVehicleInfo;
@@ -43,10 +45,12 @@ namespace ExtendedAssetEditor.UI
         private UIDisplayOptions m_displayOptionsPanel;
         private UIDoorTool m_doorTool;
         private UISavePanel m_savePanel;
+        private UIEffectPanel m_effectPanel;
 
         private bool m_checkingEvents;
 
         private VehicleInfo m_engineAsTrailer;
+        private UIPanel m_selectRef;
 
         public delegate void OnSelectedVehicleUpdated(VehicleInfo mainVehicle, int trailerIndex);
         public static event OnSelectedVehicleUpdated eventSelectedUpdated;
@@ -87,6 +91,10 @@ namespace ExtendedAssetEditor.UI
             m_savePanel = new GameObject().AddComponent<UISavePanel>();
             m_savePanel.transform.SetParent(transform.parent);
 
+            // Create effect panel
+            m_effectPanel = new GameObject().AddComponent<UIEffectPanel>();
+            m_effectPanel.transform.SetParent(transform.parent);
+
             // Events
             PrefabWatcher.instance.prefabBecameVehicle += () =>
             {
@@ -110,6 +118,9 @@ namespace ExtendedAssetEditor.UI
                 UpdateVehicleInfo();
             };
 
+            m_selectRef = GameObject.Find("SelectReference").GetComponent<UIPanel>();
+            m_selectRef.isVisible = false;
+
             CreateComponents();
             UpdateVehicleInfo();
         }
@@ -120,15 +131,19 @@ namespace ExtendedAssetEditor.UI
 
             if(m_displayOptionsPanel != null)
             {
-                GameObject.Destroy(m_displayOptionsPanel);
+                GameObject.Destroy(m_displayOptionsPanel.gameObject);
             }
             if(m_doorTool != null)
             {
-                GameObject.Destroy(m_doorTool);
+                GameObject.Destroy(m_doorTool.gameObject);
             }
             if(m_savePanel != null)
             {
-                GameObject.Destroy(m_savePanel);
+                GameObject.Destroy(m_savePanel.gameObject);
+            }
+            if(m_effectPanel != null)
+            {
+                GameObject.Destroy(m_effectPanel.gameObject);
             }
         }
 
@@ -335,18 +350,24 @@ namespace ExtendedAssetEditor.UI
                 m_lightPosZField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].z - 0.1f);
             };
 
-            // Color panel
-            /*m_colorPanel = AddUIComponent<UIPanel>();
-            m_colorPanel.size = Vector2.zero;
-            m_colorPanel.relativePosition = new Vector3(0, headerHeight + 200);
-            m_colorPanelStart = m_colorPanel.relativePosition;*/
-
 #if PRERELEASE
+
+            // Effect panel button
+            m_effectButton = m_saveButton = UIUtils.CreateButton(this);
+            m_effectButton.text = "Effect Editor";
+            m_effectButton.width = (WIDTH - 20);
+            m_effectButton.relativePosition = new Vector3(10, m_lightPanel.relativePosition.y + 200);
+            m_effectButton.eventClicked += (c, b) =>
+            {
+                if(m_mainVehicleInfo != null && m_effectPanel != null)
+                    m_effectPanel.Show();
+            };
+
             // Save button
             m_saveButton = UIUtils.CreateButton(this);
             m_saveButton.text = "Save Asset";
             m_saveButton.width = (WIDTH - 30) / 2;
-            m_saveButton.relativePosition = new Vector3(10, m_lightPanel.relativePosition.y + 200);
+            m_saveButton.relativePosition = new Vector3(10, m_effectButton.relativePosition.y + m_effectButton.height + 10);
             m_saveButton.eventClicked += (c, b) => {
                 if(m_mainVehicleInfo != null && m_savePanel != null)
                 {
@@ -357,11 +378,43 @@ namespace ExtendedAssetEditor.UI
             // Load button
             m_loadButton = UIUtils.CreateButton(this);
             m_loadButton.text = "Load Asset";
-            m_loadButton.tooltip = "TODO: Implement loading";
             m_loadButton.width = (WIDTH - 30) / 2;
-            m_loadButton.relativePosition = new Vector3(20 + m_saveButton.width, m_lightPanel.relativePosition.y + 200);
+            m_loadButton.relativePosition = new Vector3(20 + m_saveButton.width, m_effectButton.relativePosition.y + m_effectButton.height + 10);
+            m_loadButton.eventClicked += (c, b) =>
+            {
+                if(m_selectRef.isVisible)
+                {
+                    return;
+                }
+                AssetImporterAssetTemplate assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
+                assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
+                assetImporterAssetTemplate.Reset();
+                assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
+                m_selectRef.isVisible = true;
+            };
 #endif
             m_checkingEvents = true;
+        }
+
+        private void OnConfirmLoad(PrefabInfo reference)
+        {
+            if(reference != null)
+            {
+                reference = Util.InstantiateVehicleCopy(reference as VehicleInfo);
+                if(reference != null)
+                {
+                    string str = "";
+                    foreach(var t in ((VehicleInfo)reference).m_trailers)
+                    {
+                        str += t.m_info != null ? t.m_info.name : "NULL";
+                        str += "\r\n";
+                        
+                    }
+                    Debug.Log(str);
+                    ToolsModifierControl.toolController.m_editPrefabInfo = reference;
+                }
+            }
+            m_selectRef.isVisible = false;
         }
 
         private void InsertTrailer(VehicleInfo trailerInfo, int insertionIndex)

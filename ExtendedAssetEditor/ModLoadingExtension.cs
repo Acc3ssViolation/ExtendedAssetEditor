@@ -38,12 +38,19 @@ namespace ExtendedAssetEditor
 
                 m_gameObject = new GameObject(Mod.name);
                 m_gameObject.AddComponent<PrefabWatcher>();
+                m_gameObject.AddComponent<SnapshotBehaviour>();
 
                 // UI
                 UIView view = UIView.GetAView();
                 m_uiObject = new GameObject(Mod.name + " UI");
-                m_uiObject.AddComponent<UIMainPanel>();
                 m_uiObject.transform.SetParent(view.transform);
+                var p = m_uiObject.AddComponent<UIPanel>();
+                p.relativePosition = Vector2.zero;
+                p.isVisible = true;
+                p.size = Vector3.zero;
+                var o = new GameObject();
+                o.transform.SetParent(m_uiObject.transform);
+                o.AddComponent<UIMainPanel>();
 
                 // Up the trailer count limit that the default properties panel uses to 100
                 var maxTrailersField = typeof(DecorationPropertiesPanel).GetField("m_MaxTrailers", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
