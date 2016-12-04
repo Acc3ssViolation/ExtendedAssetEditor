@@ -312,17 +312,19 @@ namespace ExtendedAssetEditor.UI.Effects
                 if(m_vehicle.m_effects == null || index < 0 || index >= m_vehicle.m_effects.Length)
                     return;
 
-                ConfirmPanel.ShowModal(Mod.name, "Are you sure you want to remove the effect?", delegate (UIComponent comp, int ret)
+                /*ConfirmPanel.ShowModal(Mod.name, "Are you sure you want to remove the effect?", delegate (UIComponent comp, int ret)
                 {
                     if(ret == 1)
                     {
-                        List<VehicleInfo.Effect> list = new List<VehicleInfo.Effect>();
-                        list.AddRange(m_vehicle.m_effects);
-                        list.RemoveAt(index);
-                        m_vehicle.m_effects = list.ToArray();
-                        PopulateList();
+                        
                     }
-                });
+                });*/
+
+                List<VehicleInfo.Effect> list = new List<VehicleInfo.Effect>();
+                list.AddRange(m_vehicle.m_effects);
+                list.RemoveAt(index);
+                m_vehicle.m_effects = list.ToArray();
+                PopulateList();
             }
         }
 

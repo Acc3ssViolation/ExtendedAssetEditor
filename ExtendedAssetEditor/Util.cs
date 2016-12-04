@@ -286,5 +286,38 @@ namespace ExtendedAssetEditor
             m_lightEffectDict.Add(typeof(PassengerTrainAI), trains);
             m_lightEffectDict.Add(typeof(CargoTrainAI), trains);
         }
+
+        /// <summary>
+        /// Makes sure everyone gets the same paintjob. Taken from DecorationPropertiesPanel.
+        /// </summary>
+        public static void CopyTrailerColorFromMain()
+        {
+            VehicleInfo vehicleInfo = ToolsModifierControl.toolController.m_editPrefabInfo as VehicleInfo;
+            if(vehicleInfo != null)
+            {
+                Renderer component = vehicleInfo.GetComponent<Renderer>();
+                if(component != null && component.sharedMaterial != null)
+                {
+                    Color color = component.sharedMaterial.GetColor("_Color");
+                    if(vehicleInfo.m_trailers != null && vehicleInfo.m_trailers.Length > 0)
+                    {
+                        VehicleInfo info = vehicleInfo.m_trailers[0].m_info;
+                        Renderer component2 = info.GetComponent<Renderer>();
+                        if(component2 != null && component2.sharedMaterial != null)
+                        {
+                            component2.sharedMaterial.SetColor("_Color", color);
+                        }
+                        if(info.m_lodObject != null)
+                        {
+                            Renderer component3 = info.m_lodObject.GetComponent<Renderer>();
+                            if(component3 != null && component3.sharedMaterial != null)
+                            {
+                                component3.sharedMaterial.SetColor("_Color", color);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

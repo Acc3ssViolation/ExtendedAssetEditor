@@ -270,7 +270,7 @@ namespace ExtendedAssetEditor.UI
             else
             {
                 m_snapshotSprite.texture = (UnityEngine.Object.Instantiate<Texture>(Resources.FindObjectsOfTypeAll<SaveAssetPanel>()[0].m_DefaultAssetPreviewTexture) as Texture2D);
-                m_snapshotLabel.text = Locale.Get("NO_SNAPSHOTS");
+                m_snapshotLabel.text = "Press CTRL+ALT+S to take snapshot";
             }
         }
 
