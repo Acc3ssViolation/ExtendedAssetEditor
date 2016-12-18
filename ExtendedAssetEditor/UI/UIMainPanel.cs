@@ -301,7 +301,7 @@ namespace ExtendedAssetEditor.UI
 
                 m_lightPosXField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].x + 0.1f);
             };
-            m_lightPosXField.buttonDown.eventClicked -= (c, b) => {
+            m_lightPosXField.buttonDown.eventClicked += (c, b) => {
                 if(!m_checkingEvents) { return; }
 
                 m_lightPosXField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].x - 0.1f);
@@ -323,7 +323,7 @@ namespace ExtendedAssetEditor.UI
 
                 m_lightPosYField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].y + 0.1f);
             };
-            m_lightPosYField.buttonDown.eventClicked -= (c, b) => {
+            m_lightPosYField.buttonDown.eventClicked += (c, b) => {
                 if(!m_checkingEvents) { return; }
 
                 m_lightPosYField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].y - 0.1f);
@@ -345,13 +345,11 @@ namespace ExtendedAssetEditor.UI
 
                 m_lightPosZField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].z + 0.1f);
             };
-            m_lightPosZField.buttonDown.eventClicked -= (c, b) => {
+            m_lightPosZField.buttonDown.eventClicked += (c, b) => {
                 if(!m_checkingEvents) { return; }
 
                 m_lightPosZField.SetValue(m_selectedVehicleInfo.m_lightPositions[m_lightDropdown.selectedIndex].z - 0.1f);
             };
-
-#if PRERELEASE
 
             // Effect panel button
             m_effectButton = m_saveButton = UIUtils.CreateButton(this);
@@ -393,7 +391,7 @@ namespace ExtendedAssetEditor.UI
                 assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
                 m_selectRef.isVisible = true;
             };
-#endif
+
             m_checkingEvents = true;
         }
 
@@ -588,6 +586,11 @@ namespace ExtendedAssetEditor.UI
                 {
                     m_lightAddButton.isVisible = false;
                     m_lightRemoveButton.isVisible = false;
+                }
+
+                if(listIndex >= 0 && listIndex < m_vehicleDropdown.items.Length)
+                {
+                    m_vehicleDropdown.tooltip = m_vehicleDropdown.items[listIndex];
                 }
 
                 m_checkingEvents = true;

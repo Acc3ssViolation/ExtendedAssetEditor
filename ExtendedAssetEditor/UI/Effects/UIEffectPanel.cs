@@ -153,6 +153,10 @@ namespace ExtendedAssetEditor.UI.Effects
             {
                 GameObject.Destroy(m_addPanel.gameObject);
             }
+            if(m_flagsPanel != null)
+            {
+                GameObject.Destroy(m_flagsPanel.gameObject);
+            }
         }
 
         private void CreateComponents()
@@ -239,6 +243,7 @@ namespace ExtendedAssetEditor.UI.Effects
             if(value < 0)
                 return;
 
+            m_vehicleDropdown.tooltip = m_vehicleDropdown.items[value];
             m_vehicle = m_vehicles[value];
             PopulateList();
         }
