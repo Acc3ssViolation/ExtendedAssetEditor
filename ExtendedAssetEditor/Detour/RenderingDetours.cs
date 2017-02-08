@@ -14,7 +14,7 @@ namespace ExtendedAssetEditor.Detour
     /// <summary>
     /// Handles all changes to rendering of vehicles in the asset editor
     /// </summary>
-    public class RenderingDetours
+    public class RenderingDetours : IDetour
     {
         private List<DetourItem> m_detours;
 

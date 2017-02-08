@@ -20,7 +20,6 @@ namespace ExtendedAssetEditor
         public event OnPrefabChanged prefabWasBuilding;
         public event OnPrefabChanged prefabBecameProp;
         public event OnPrefabChanged prefabWasProp;
-
         public event OnPrefabChanged prefabChanged;
         public event OnTrailersChanged trailersChanged;
 

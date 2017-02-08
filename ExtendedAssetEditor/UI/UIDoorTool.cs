@@ -27,6 +27,10 @@ namespace ExtendedAssetEditor.UI
         private int m_activeMarkerCount;
         private int m_trailerIndex = -1;
 
+
+        private CoroutineHelper m_updateDoorList;
+
+
         public override void Start()
         {
             base.Start();
@@ -249,6 +253,15 @@ namespace ExtendedAssetEditor.UI
 
         private void UpdateDoorList()
         {
+            if(m_updateDoorList == null)
+            {
+                m_updateDoorList = CoroutineHelper.Create(UpdateDoorListImpl);
+            }
+            m_updateDoorList.Run();
+        }
+
+        private void UpdateDoorListImpl()
+        {
             m_activeMarkerCount = 0;
             foreach(var g in m_doorMarkers)
             {
@@ -278,7 +291,7 @@ namespace ExtendedAssetEditor.UI
                 }
 
                 m_activeMarkerCount = count;
-                
+
                 m_doorDropdown.selectedIndex = selectedIndex;
                 OnDoorSelectionChanged(null, selectedIndex);
             }
