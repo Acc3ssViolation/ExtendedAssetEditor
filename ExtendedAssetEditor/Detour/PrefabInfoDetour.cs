@@ -9,7 +9,7 @@ namespace ExtendedAssetEditor.Detour
     /// <summary>
     /// Detours PrefabInfo methods
     /// </summary>
-    public class PrefabInfoDetour
+    public class PrefabInfoDetour : IDetour
     {
         private DetourItem m_decorationAreaDetour;
 
@@ -33,8 +33,8 @@ namespace ExtendedAssetEditor.Detour
         public virtual void GetDecorationArea(out int width, out int length, out float offset)
         {
             // Give larger width and length to give the camera a bit more room to move around in
-            width = 64;
-            length = 64;
+            width = 400;
+            length = 400;
             offset = 0f;
         }
     }

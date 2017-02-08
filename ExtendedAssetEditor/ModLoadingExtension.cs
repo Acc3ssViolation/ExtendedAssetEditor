@@ -14,8 +14,8 @@ namespace ExtendedAssetEditor
     {
         private static GameObject m_gameObject;
         private static GameObject m_uiObject;
-        private static RenderingDetours m_renderDetours;
-        private static PrefabInfoDetour m_prefabInfoDetour;
+
+        private List<IDetour> m_detours = new List<IDetour>();
 
         public static GameObject GameObject
         {
@@ -25,15 +25,20 @@ namespace ExtendedAssetEditor
             }
         }
 
+        public ModLoadingExtension()
+        {
+            m_detours.Add(new RenderingDetours());
+            m_detours.Add(new PrefabInfoDetour());
+        }
+
         public override void OnLevelLoaded(LoadMode mode)
         {
             if(Mod.IsValidLoadMode(mode))
             {
-                m_renderDetours = new RenderingDetours();
-                m_renderDetours.Deploy();
-                m_prefabInfoDetour = new PrefabInfoDetour();
-                m_prefabInfoDetour.Deploy();
-
+                foreach(var detour in m_detours)
+                {
+                    detour.Deploy();
+                }
                 DisplayOptions options = new DisplayOptions();
 
                 m_gameObject = new GameObject(Mod.name);
@@ -62,8 +67,10 @@ namespace ExtendedAssetEditor
         {
             if(m_gameObject != null)
             {
-                m_renderDetours.Revert();
-                m_prefabInfoDetour.Revert();
+                foreach(var detour in m_detours)
+                {
+                    detour.Revert();
+                }
                 GameObject.Destroy(m_gameObject);
             }
             if(m_uiObject != null)

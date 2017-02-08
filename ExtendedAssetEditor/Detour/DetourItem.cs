@@ -29,6 +29,8 @@ namespace ExtendedAssetEditor.Detour
 
             deployed = true;
             state = RedirectionHelper.RedirectCalls(original, detour);
+
+            UnityEngine.Debug.Log("DetourItem: Detoured " + name);
         }
 
         public void Revert()
@@ -38,6 +40,8 @@ namespace ExtendedAssetEditor.Detour
 
             deployed = false;
             RedirectionHelper.RevertRedirect(original, state);
+
+            UnityEngine.Debug.Log("DetourItem: Reverted " + name);
         }
     }
 }

@@ -59,9 +59,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssetBundles\AssetBundleLoader.cs" />
+    <Compile Include="CoroutineHelper.cs" />
     <Compile Include="Detour\DecorationPropertiesPanelDetour.cs" />
     <Compile Include="Detour\DetourItem.cs" />
+    <Compile Include="Detour\IDetour.cs" />
     <Compile Include="Detour\PrefabInfoDetour.cs" />
+    <Compile Include="Detour\TreeManagerDetour.cs" />
+    <Compile Include="Detour\PropManagerDetour.cs" />
     <Compile Include="Detour\RedirectionHelper.cs" />
     <Compile Include="DisplayOptions.cs" />
     <Compile Include="Mod.cs" />
@@ -81,6 +85,7 @@
     <Compile Include="UI\UIFastList.cs" />
     <Compile Include="UI\UIFloatField.cs" />
     <Compile Include="UI\UIMainPanel.cs" />
+    <Compile Include="UI\UIParentPanel.cs" />
     <Compile Include="UI\UISavePanel.cs" />
     <Compile Include="UI\UIUtils.cs" />
     <Compile Include="Util.cs" />
