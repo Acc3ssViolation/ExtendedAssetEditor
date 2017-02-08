@@ -26,7 +26,14 @@ namespace ExtendedAssetEditor
         IEnumerator Coroutine()
         {
             yield return new WaitForSeconds(WAIT_TIME);
-            m_action.Invoke();
+            try
+            {
+                m_action.Invoke();
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning("Exception running CoroutineHelper:\n" + e.Message + "\n" + e.StackTrace);
+            }
         }
         
         /// <summary>
