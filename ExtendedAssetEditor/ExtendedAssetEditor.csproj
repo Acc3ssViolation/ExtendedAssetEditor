@@ -64,8 +64,6 @@
     <Compile Include="Detour\DetourItem.cs" />
     <Compile Include="Detour\IDetour.cs" />
     <Compile Include="Detour\PrefabInfoDetour.cs" />
-    <Compile Include="Detour\TreeManagerDetour.cs" />
-    <Compile Include="Detour\PropManagerDetour.cs" />
     <Compile Include="Detour\RedirectionHelper.cs" />
     <Compile Include="DisplayOptions.cs" />
     <Compile Include="Mod.cs" />
