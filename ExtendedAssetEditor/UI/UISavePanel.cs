@@ -22,6 +22,7 @@ namespace ExtendedAssetEditor.UI
 
         private UIButton m_saveButton;
         private UIButton m_cancelButton;
+        private UIDropDown m_namingDropdown;
 
         // TESTING
         private UITextField m_packageField;
@@ -89,6 +90,20 @@ namespace ExtendedAssetEditor.UI
             m_nameField = UIUtils.CreateTextField(this);
             m_nameField.width = 400;
             m_nameField.relativePosition = new Vector3(m_packageField.relativePosition.x, headerHeight + 40);
+
+
+            // Naming dropdown menu
+            label = AddUIComponent<UILabel>();
+            label.text = "Trailer naming:";
+            label.relativePosition = new Vector3(m_nameField.relativePosition.x + m_nameField.width + 20, headerHeight + 10);
+            m_namingDropdown = UIUtils.CreateDropDown(this);
+            m_namingDropdown.text = "Trailer naming convention";
+            m_namingDropdown.AddItem("Package name (TrailerPackageName0)");     //0
+            m_namingDropdown.AddItem("Default (Trailer0)");                     //1
+            m_namingDropdown.selectedIndex = 0;
+            m_namingDropdown.width = 300;
+            m_namingDropdown.relativePosition = new Vector3(m_nameField.relativePosition.x + m_nameField.width + 20, headerHeight + 35);
+
 
             // Save button
             m_saveButton = UIUtils.CreateButton(this);
@@ -294,6 +309,10 @@ namespace ExtendedAssetEditor.UI
                 return;
             }
 
+            // Start in the center of the screen
+            UIView view = UIView.GetAView();
+            relativePosition = new Vector3((view.fixedWidth - width) / 2, (view.fixedHeight - height) / 2);
+
             m_info = info;
             isVisible = true;
         }
@@ -330,8 +349,18 @@ namespace ExtendedAssetEditor.UI
                         trailerInfo = Util.InstantiateVehicleCopy(m_info.m_trailers[i].m_info);
 
                         // Include packagename in trailer, fixes Duplicate Prefab errors with multi .crp workshop uploads
-                        trailerInfo.name = "Trailer" + packageName +  addedTrailers.Count;
-                        Debug.Log("Renaming copy of trailer " + m_info.m_trailers[i].m_info.name  + " to " + trailerInfo.name + " in package " + packageName);
+                        if(m_namingDropdown.selectedIndex == 0)
+                        {
+                            // TrailerPackageName0
+                            trailerInfo.name = "Trailer" + packageName + addedTrailers.Count;
+                            Debug.Log("Renaming copy of trailer " + m_info.m_trailers[i].m_info.name + " to " + trailerInfo.name + " in package " + packageName);
+                        }
+                        else
+                        {
+                            // Default, Trailer0
+                            trailerInfo.name = "Trailer" + addedTrailers.Count;
+                        }
+                       
 
                         // Fix for 1.6
                         try { trailerInfo.m_mesh.name += packageName; } catch(Exception e) { Debug.LogException(e); Debug.Log("me"); } ;

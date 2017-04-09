@@ -12,6 +12,12 @@ namespace ExtendedAssetEditor.UI
 {
     public class UIMainPanel : UIPanel
     {
+        private enum LoadPanelReason
+        {
+            Full,
+            Trailer
+        }
+
         private static UIMainPanel main;
 
         public const int WIDTH = 300;
@@ -31,6 +37,8 @@ namespace ExtendedAssetEditor.UI
         private UIButton m_engineButton;
         private UIButton m_engineCopyButton;
         private UIButton m_insertTrailerButton;
+        private UIButton m_removeTrailerButton;
+        private UIButton m_changeTrailerButton;
 
         private Vector3 m_trailerPanelStart;
         private Vector3 m_lightPanelStart;
@@ -50,8 +58,11 @@ namespace ExtendedAssetEditor.UI
         private bool m_checkingEvents;
 
         private VehicleInfo m_engineAsTrailer;
+        private LoadPanelReason m_selectRefReason;
+        private int m_changeTrailerIndex;
         private UIPanel m_selectRef;
         private VehicleInfo.VehicleTrailer[] m_trailersToInstantiate;
+        private int m_framesWaitedForTrailerInstantiation;
 
         public delegate void OnSelectedVehicleUpdated(VehicleInfo mainVehicle, int trailerIndex);
         public static event OnSelectedVehicleUpdated eventSelectedUpdated;
@@ -232,6 +243,60 @@ namespace ExtendedAssetEditor.UI
             m_insertTrailerButton.tooltip = "Insert another trailer of this type after the currently selected trailer.";
             m_insertTrailerButton.relativePosition = new Vector3(10, 70);
 
+            // Button remove trailer
+            m_removeTrailerButton = UIUtils.CreateButton(m_trailerPanel);
+            m_removeTrailerButton.eventClicked += (c, b) => {
+                if(!m_checkingEvents) { return; }
+
+                RemoveTrailer(m_vehicleDropdown.selectedIndex - 1);
+            };
+            m_removeTrailerButton.text = "Remove";
+            m_removeTrailerButton.tooltip = "Remove this trailer from the vehicle.";
+            m_removeTrailerButton.relativePosition = new Vector3((WIDTH - m_removeTrailerButton.width ) / 2, 70);
+
+            // Button change trailer
+            m_changeTrailerButton = UIUtils.CreateButton(m_trailerPanel);
+            m_changeTrailerButton.eventClicked += (c, b) => {
+                if(!m_checkingEvents) { return; }
+
+                if(m_selectRef.isVisible)
+                {
+                    return;
+                }
+
+                m_changeTrailerIndex = m_vehicleDropdown.selectedIndex - 1;     // 0 is the engine, so we do -1 to get trailer index
+                m_selectRefReason = LoadPanelReason.Trailer;
+                AssetImporterAssetTemplate assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
+                assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
+                assetImporterAssetTemplate.Reset();
+                // Get correct filter
+                if(m_mainVehicleInfo.m_vehicleAI as TramBaseAI != null)
+                {
+                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.TramTrailer);
+                }
+                else if(m_mainVehicleInfo.m_vehicleAI as TrainAI != null)
+                {
+                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.TrainCars);
+                }
+                else if(m_mainVehicleInfo.m_vehicleAI as CarAI != null)
+                {
+                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.CarTrailers);
+                }
+                else if(m_mainVehicleInfo.m_vehicleAI as HelicopterAI != null)
+                {
+                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.HelicopterTrailer);
+                }
+                else
+                {
+                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
+                }
+
+                m_selectRef.isVisible = true;
+            };
+            m_changeTrailerButton.text = "Change";
+            m_changeTrailerButton.tooltip = "Select a trailer asset to use for this trailer.";
+            m_changeTrailerButton.relativePosition = new Vector3(WIDTH - 10 - m_changeTrailerButton.width, 70);
+
             // Light panel
             m_lightPanel = AddUIComponent<UIPanel>();
             m_lightPanel.relativePosition = new Vector3(0, headerHeight + 160);
@@ -385,6 +450,8 @@ namespace ExtendedAssetEditor.UI
                 {
                     return;
                 }
+
+                m_selectRefReason = LoadPanelReason.Full;
                 AssetImporterAssetTemplate assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
                 assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
                 assetImporterAssetTemplate.Reset();
@@ -395,18 +462,24 @@ namespace ExtendedAssetEditor.UI
             m_checkingEvents = true;
         }
 
-        public override void Update()
+        /// <summary>
+        /// Handles trailer instantiation when loading an asset.
+        /// </summary>
+        public override void LateUpdate()
         {
-            base.Update();
+            base.LateUpdate();
+
+            // Wait a little bit before instantiating the trailers so the game's default panels can do their thing first.
+            if(m_framesWaitedForTrailerInstantiation < 2)
+            {
+                m_framesWaitedForTrailerInstantiation++;
+                return;
+            }
+
+            m_framesWaitedForTrailerInstantiation = 0;
 
             if(m_trailersToInstantiate != null && m_mainVehicleInfo != null && m_mainVehicleInfo.m_trailers != null)
             {
-                if(m_trailersToInstantiate.Length != m_mainVehicleInfo.m_trailers.Length)
-                {
-                    Debug.Log("Trailer array length mismatch!");
-                    return;
-                }
-
                 Debug.Log("Restoring correct trailers for asset.");
                 for(int index = 0; index < m_trailersToInstantiate.Length; index++)
                 {
@@ -445,27 +518,65 @@ namespace ExtendedAssetEditor.UI
                 if(reference != null)
                 {
                     VehicleInfo vehicle = reference as VehicleInfo;
-                    if(vehicle.m_trailers != null)
+                    if(m_selectRefReason == LoadPanelReason.Full)
                     {
-                        string str = "";
-                        foreach(var t in vehicle.m_trailers)
+                        // This was a full asset load
+                        if(vehicle.m_trailers != null)
                         {
-                            str += t.m_info != null ? t.m_info.name : "NULL";
-                            str += "\r\n";
-                        }
-                        Debug.Log(str);
+                            string str = "";
+                            foreach(var t in vehicle.m_trailers)
+                            {
+                                str += t.m_info != null ? t.m_info.name : "NULL";
+                                str += "\r\n";
+                            }
+                            Debug.Log(str);
 
-                        m_trailersToInstantiate = new VehicleInfo.VehicleTrailer[vehicle.m_trailers.Length];
-                        vehicle.m_trailers.CopyTo(m_trailersToInstantiate, 0);
+                            m_trailersToInstantiate = new VehicleInfo.VehicleTrailer[vehicle.m_trailers.Length];
+                            vehicle.m_trailers.CopyTo(m_trailersToInstantiate, 0);
+                        }
+
+                        CheckMissingEffects((VehicleInfo)reference);
+                        ToolsModifierControl.toolController.m_editPrefabInfo = reference;
                     }
-                    
-                    CheckMissingEffects((VehicleInfo)reference);
-                    ToolsModifierControl.toolController.m_editPrefabInfo = reference;
+                    else if(m_selectRefReason == LoadPanelReason.Trailer)
+                    {
+                        // This was a single trailer load
+                        bool isInstantiated = false;
+                        for(int i = 0; i < m_mainVehicleInfo.m_trailers.Length; i++)
+                        {
+                            if(vehicle.name == m_mainVehicleInfo.m_trailers[i].m_info.name)
+                            {
+                                isInstantiated = true;
+                                vehicle = m_mainVehicleInfo.m_trailers[i].m_info;
+                                Debug.Log("Trailer " + vehicle.name + " already loaded");
+                                break;
+                            }
+                        }
+                        if(!isInstantiated)
+                        {
+                            Debug.Log("Trailer " + vehicle.name + " not yet loaded, instantiating...");
+                            vehicle = Util.InstantiateVehicleCopy(vehicle);
+                        }
+                        // Set the trailer
+                        m_mainVehicleInfo.m_trailers[m_changeTrailerIndex] = new VehicleInfo.VehicleTrailer {
+                            m_info = vehicle,
+                            m_invertProbability = m_mainVehicleInfo.m_trailers[m_changeTrailerIndex].m_invertProbability,
+                            m_probability = m_mainVehicleInfo.m_trailers[m_changeTrailerIndex].m_probability,
+                        };
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
                 }
             }
             m_selectRef.isVisible = false;
         }
 
+        /// <summary>
+        /// Checks a VehicleInfo for missing effects and prompts the user to remove them.
+        /// </summary>
+        /// <param name="vehicle">The vehicle to check.</param>
         private void CheckMissingEffects(VehicleInfo vehicle)
         {
             if(vehicle != null && vehicle.m_effects != null)
@@ -474,7 +585,7 @@ namespace ExtendedAssetEditor.UI
                 {
                     if(vehicle.m_effects[i].m_effect == null)
                     {
-                        ConfirmPanel.ShowModal(Mod.name, "Detected missing effects on vehicle " + vehicle.name + ", do you want EAE to remove these for you? Click cancel to ignore this warning.", delegate (UIComponent comp, int ret)
+                        ConfirmPanel.ShowModal(Mod.name, "Detected missing effect on vehicle " + vehicle.name + ", do you want EAE to remove this for you? Click cancel to ignore this warning.", delegate (UIComponent comp, int ret)
                         {
                             if(ret == 1)
                             {
@@ -490,6 +601,23 @@ namespace ExtendedAssetEditor.UI
             }
         }
 
+        /// <summary>
+        /// Removes the trailer with the index.
+        /// </summary>
+        /// <param name="index">The index of the trailer to remove.</param>
+        private void RemoveTrailer(int index)
+        {
+            List<VehicleInfo.VehicleTrailer> trailerList = new List<VehicleInfo.VehicleTrailer>();
+            trailerList.AddRange(m_mainVehicleInfo.m_trailers);
+            trailerList.RemoveAt(index);
+            m_mainVehicleInfo.m_trailers = trailerList.ToArray();
+        }
+
+        /// <summary>
+        /// Inserts a new trailer into the trailer list.
+        /// </summary>
+        /// <param name="trailerInfo">The info to use</param>
+        /// <param name="insertionIndex">The index to insert at</param>
         private void InsertTrailer(VehicleInfo trailerInfo, int insertionIndex)
         {
             if(m_mainVehicleInfo.m_trailers == null)
