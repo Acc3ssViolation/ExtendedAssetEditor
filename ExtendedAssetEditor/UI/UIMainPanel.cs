@@ -728,7 +728,7 @@ namespace ExtendedAssetEditor.UI
         }
 
         /// <summary>
-        /// Adds a light to the selected vehicle, also adds train lights automatically.
+        /// Adds a light to the selected vehicle, also adds train light effects automatically.
         /// </summary>
         private void AddLight()
         {
@@ -739,7 +739,9 @@ namespace ExtendedAssetEditor.UI
                 m_selectedVehicleInfo.m_lightPositions = Util.LengthenArray(m_selectedVehicleInfo.m_lightPositions, Vector3.zero);
                 if(lightEffect != null)
                 {
-                    Util.AddEffect(m_selectedVehicleInfo, lightEffect);
+                    // Trains only
+                    Util.AddEffect(m_selectedVehicleInfo, lightEffect, Vehicle.Flags.Created, Vehicle.Flags.Reversed | Vehicle.Flags.Inverted);
+                    Util.AddEffect(m_selectedVehicleInfo, lightEffect, Vehicle.Flags.Reversed | Vehicle.Flags.Inverted);
                 }
                 UpdateLightsPanel();
             }

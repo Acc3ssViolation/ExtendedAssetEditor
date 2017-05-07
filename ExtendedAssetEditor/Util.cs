@@ -55,7 +55,7 @@ namespace ExtendedAssetEditor
         /// <summary>
         /// Adds the effect with name effectName to info
         /// </summary>
-        public static bool AddEffect(VehicleInfo info, string effectName)
+        public static bool AddEffect(VehicleInfo info, string effectName, Vehicle.Flags flagsRequired = Vehicle.Flags.Created, Vehicle.Flags flagsForbidden = 0)
         {
             EffectInfo effect = EffectCollection.FindEffect(effectName);
             if(effect == null)
@@ -67,14 +67,15 @@ namespace ExtendedAssetEditor
             {
                 Array.Copy(info.m_effects, tmp, size - 1);
             }
-            tmp[size - 1] = new VehicleInfo.Effect
+            var newEffect = new VehicleInfo.Effect
             {
                 m_effect = effect,
                 m_parkedFlagsForbidden = VehicleParked.Flags.Created,
                 m_parkedFlagsRequired = VehicleParked.Flags.None,
-                m_vehicleFlagsForbidden = 0,
-                m_vehicleFlagsRequired = Vehicle.Flags.Created
+                m_vehicleFlagsForbidden = flagsForbidden,
+                m_vehicleFlagsRequired = flagsRequired,
             };
+            tmp[size - 1] = newEffect;
             info.m_effects = tmp;
 
             return true;

@@ -348,6 +348,9 @@ namespace ExtendedAssetEditor.UI
                         // Trailer not yet added to package
                         trailerInfo = Util.InstantiateVehicleCopy(m_info.m_trailers[i].m_info);
 
+                        // Set placment mode to Procedural, this seems to be the only difference between engines (Automatic) and trailers (Procedural)
+                        trailerInfo.m_placementStyle = ItemClass.Placement.Procedural;
+
                         // Include packagename in trailer, fixes Duplicate Prefab errors with multi .crp workshop uploads
                         if(m_namingDropdown.selectedIndex == 0)
                         {
