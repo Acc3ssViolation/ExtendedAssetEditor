@@ -84,6 +84,7 @@
     <Compile Include="UI\UIFloatField.cs" />
     <Compile Include="UI\UIMainPanel.cs" />
     <Compile Include="UI\UIParentPanel.cs" />
+    <Compile Include="UI\UIPropPanel.cs" />
     <Compile Include="UI\UISavePanel.cs" />
     <Compile Include="UI\UIUtils.cs" />
     <Compile Include="Util.cs" />

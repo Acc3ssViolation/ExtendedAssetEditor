@@ -18,14 +18,14 @@ namespace ExtendedAssetEditor
         /// <summary>
         /// Runs the method with a short delay.
         /// </summary>
-        public void Run()
+        public void Run(float waitTime = WAIT_TIME)
         {
-            StartCoroutine(Coroutine());
+            StartCoroutine(Coroutine(waitTime));
         }
 
-        IEnumerator Coroutine()
+        IEnumerator Coroutine(float waitTime)
         {
-            yield return new WaitForSeconds(WAIT_TIME);
+            yield return new WaitForSeconds(waitTime);
             try
             {
                 m_action.Invoke();

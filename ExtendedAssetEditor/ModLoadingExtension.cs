@@ -57,6 +57,10 @@ namespace ExtendedAssetEditor
                 o.transform.SetParent(m_uiObject.transform);
                 o.AddComponent<UIMainPanel>();
 
+                o = new GameObject();
+                o.transform.SetParent(m_uiObject.transform);
+                o.AddComponent<UIPropPanel>();
+
                 // Up the trailer count limit that the default properties panel uses to 100
                 var maxTrailersField = typeof(DecorationPropertiesPanel).GetField("m_MaxTrailers", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
                 maxTrailersField.SetValue(null, 100);
