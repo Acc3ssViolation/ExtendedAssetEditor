@@ -5,13 +5,13 @@ namespace ExtendedAssetEditor
     public class Mod : IUserMod
     {
         public const string name = "Extended Asset Editor";
-        public const string versionString = "0.4.4";
+        public const string versionString = "0.4.5a";
 
         public string Description
         {
             get
             {
-                return "Version " + versionString + ". Adds various features and fixes for dealing with vehicles in the Asset Editor.";
+                return "Version " + versionString + ". Adds various features for dealing with vehicles in the Asset Editor.";
             }
         }
 

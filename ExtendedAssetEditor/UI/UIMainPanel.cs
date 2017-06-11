@@ -54,6 +54,7 @@ namespace ExtendedAssetEditor.UI
         private UIDoorTool m_doorTool;
         private UISavePanel m_savePanel;
         private UIEffectPanel m_effectPanel;
+        private UISettingsPanel m_settingsPanel;
 
         private bool m_checkingEvents;
 
@@ -88,8 +89,8 @@ namespace ExtendedAssetEditor.UI
             canFocus = true;
             isInteractive = true;
             isVisible = false;
-            // Start in the top right corner
-            relativePosition = new Vector3(view.fixedWidth - width - 10, 60);
+            // Start in the top left corner
+            relativePosition = new Vector3(10, 10);
 
             // Create display options panel
             m_displayOptionsPanel = new GameObject().AddComponent<UIDisplayOptions>();
@@ -106,6 +107,10 @@ namespace ExtendedAssetEditor.UI
             // Create effect panel
             m_effectPanel = new GameObject().AddComponent<UIEffectPanel>();
             m_effectPanel.transform.SetParent(transform.parent);
+
+            // Create settings panel
+            m_settingsPanel = new GameObject().AddComponent<UISettingsPanel>();
+            m_settingsPanel.transform.SetParent(transform.parent);
 
             // Events
             PrefabWatcher.instance.prefabBecameVehicle += () =>
@@ -156,6 +161,10 @@ namespace ExtendedAssetEditor.UI
             if(m_effectPanel != null)
             {
                 GameObject.Destroy(m_effectPanel.gameObject);
+            }
+            if(m_settingsPanel != null)
+            {
+                GameObject.Destroy(m_settingsPanel.gameObject);
             }
         }
 

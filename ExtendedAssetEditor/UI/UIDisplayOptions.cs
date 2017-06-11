@@ -12,7 +12,7 @@ namespace ExtendedAssetEditor.UI
     public class UIDisplayOptions : UIPanel
     {
         public const int WIDTH = 220;
-        public const int HEIGHT = 240;
+        public const int HEIGHT = 280;
 
         private UIDropDown m_directionDropdown;
         private UICheckBox m_doorCheckbox;
@@ -20,6 +20,8 @@ namespace ExtendedAssetEditor.UI
         private UICheckBox m_emergencyCheckbox2;
         private UICheckBox m_landingCheckbox;
         private UICheckBox m_takeOffCheckbox;
+        private UICheckBox m_showSettingsCheckbox;
+
 
         public override void Start()
         {
@@ -33,8 +35,8 @@ namespace ExtendedAssetEditor.UI
             canFocus = true;
             isInteractive = true;
             isVisible = false;
-            // Start in the top right corner next to the main panel
-            relativePosition = new Vector3(view.fixedWidth - width - 20 - UIMainPanel.WIDTH, 60);
+            // Start in the top
+            relativePosition = new Vector3(10 + UIMainPanel.WIDTH + 10 + UISettingsPanel.WIDTH + 10, 10);
 
             // Events
             PrefabWatcher.instance.prefabBecameVehicle += () =>
@@ -124,6 +126,14 @@ namespace ExtendedAssetEditor.UI
             m_landingCheckbox.relativePosition = new Vector3(10, headerHeight + 170);
             m_landingCheckbox.width = WIDTH - 20;
             m_landingCheckbox.tooltip = "Show landing specific effects.";
+
+            // Settings
+            m_showSettingsCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show settings", DisplayOptions.activeOptions.ShowSettingsPanel, (b) => {
+                DisplayOptions.activeOptions.ShowSettingsPanel = b;
+            });
+            m_showSettingsCheckbox.relativePosition = new Vector3(10, headerHeight + 200);
+            m_showSettingsCheckbox.width = WIDTH - 20;
+            m_showSettingsCheckbox.tooltip = "Show settings panel.";
         }
     }
 }

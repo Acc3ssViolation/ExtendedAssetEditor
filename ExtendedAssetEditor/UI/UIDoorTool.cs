@@ -44,7 +44,7 @@ namespace ExtendedAssetEditor.UI
             isInteractive = true;
             isVisible = false;
             // Start in the top right corner next to the display options tool
-            relativePosition = new Vector3(view.fixedWidth - width - 30 - UIMainPanel.WIDTH - UIDisplayOptions.WIDTH, 60);
+            relativePosition = new Vector3(10 + UIMainPanel.WIDTH + 10 + UISettingsPanel.WIDTH + 10 + UIDisplayOptions.WIDTH + 10, 10);
 
             // Events
             PrefabWatcher.instance.prefabBecameVehicle += () =>

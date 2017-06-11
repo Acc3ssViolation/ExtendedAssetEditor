@@ -39,7 +39,6 @@ namespace ExtendedAssetEditor
                 {
                     detour.Deploy();
                 }
-                DisplayOptions options = new DisplayOptions();
 
                 m_gameObject = new GameObject(Mod.name);
                 m_gameObject.AddComponent<PrefabWatcher>();
@@ -53,6 +52,7 @@ namespace ExtendedAssetEditor
                 p.relativePosition = Vector2.zero;
                 p.isVisible = true;
                 p.size = Vector3.zero;
+                
                 var o = new GameObject();
                 o.transform.SetParent(m_uiObject.transform);
                 o.AddComponent<UIMainPanel>();

@@ -86,6 +86,7 @@
     <Compile Include="UI\UIParentPanel.cs" />
     <Compile Include="UI\UIPropPanel.cs" />
     <Compile Include="UI\UISavePanel.cs" />
+    <Compile Include="UI\UISettingsPanel.cs" />
     <Compile Include="UI\UIUtils.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>

@@ -23,7 +23,12 @@ namespace ExtendedAssetEditor.UI
             }
         }
 
-        public static UIFloatField CreateField(string label, UIComponent parent)
+        public void FloatFieldHandler(ref float target)
+        {
+            FloatFieldHandler(this.textField, this.textField.text, ref target);
+        }
+
+        public static UIFloatField CreateField(string label, UIComponent parent, bool buttons = true)
         {
             UIFloatField field = new UIFloatField();
             field.panel = parent.AddUIComponent<UIPanel>();
@@ -35,21 +40,34 @@ namespace ExtendedAssetEditor.UI
             field.textField = UIUtils.CreateTextField(field.panel);
             field.textField.relativePosition = new Vector3(field.label.width + 10, 0);
 
-            field.buttonDown = UIUtils.CreateButton(field.panel);
-            field.buttonDown.text = "-";
-            field.buttonDown.height = 20;
-            field.buttonDown.width = 30;
-            field.buttonDown.relativePosition = field.textField.relativePosition + new Vector3(field.textField.width + 10, 0);
+            if(buttons)
+            {
 
-            field.buttonUp = UIUtils.CreateButton(field.panel);
-            field.buttonUp.text = "+";
-            field.buttonUp.height = 20;
-            field.buttonUp.width = 30;
-            field.buttonUp.relativePosition = field.buttonDown.relativePosition + new Vector3(field.buttonDown.width + 10, 0);
+                field.buttonDown = UIUtils.CreateButton(field.panel);
+                field.buttonDown.text = "-";
+                field.buttonDown.height = 20;
+                field.buttonDown.width = 30;
+                field.buttonDown.relativePosition = field.textField.relativePosition + new Vector3(field.textField.width + 10, 0);
 
-            field.panel.width = field.buttonUp.relativePosition.x + field.buttonUp.width;
-            field.panel.height = field.buttonUp.relativePosition.y + field.buttonUp.height;
+                field.buttonUp = UIUtils.CreateButton(field.panel);
+                field.buttonUp.text = "+";
+                field.buttonUp.height = 20;
+                field.buttonUp.width = 30;
+                field.buttonUp.relativePosition = field.buttonDown.relativePosition + new Vector3(field.buttonDown.width + 10, 0);
 
+            }
+
+            field.panel.width = buttons ? field.buttonUp.relativePosition.x + field.buttonUp.width : field.textField.relativePosition.x + field.textField.width;
+            field.panel.height = buttons ? field.buttonUp.relativePosition.y + field.buttonUp.height : field.textField.relativePosition.y + field.textField.height;
+
+            return field;
+        }
+
+        public static UIFloatField CreateField(string label, int labelWidth, UIComponent parent, bool buttons = true)
+        {
+            var field = CreateField(label, parent, buttons);
+            field.label.width = labelWidth;
+            field.textField.relativePosition = new Vector3(labelWidth + 10, 0);
             return field;
         }
 

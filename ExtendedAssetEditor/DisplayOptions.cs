@@ -7,7 +7,22 @@ namespace ExtendedAssetEditor
 {
     public class DisplayOptions
     {
-        public static DisplayOptions activeOptions;
+        private static DisplayOptions m_activeOptions;
+        public static DisplayOptions activeOptions
+        {
+            get
+            {
+                if(m_activeOptions == null)
+                {
+                    m_activeOptions = new DisplayOptions();
+                }
+                return m_activeOptions;
+            }
+            set
+            {
+                m_activeOptions = value;
+            }
+        }
 
         private bool m_reversed;
         private bool m_showDoors = true;
@@ -15,6 +30,9 @@ namespace ExtendedAssetEditor
         private bool m_showEmergency2 = false;
         private bool m_showLanding = false;
         private bool m_showTakeOff = false;
+        private bool m_showSettings = true;
+
+        private CoroutineHelper m_helper;
 
         public bool Reversed
         {
@@ -93,15 +111,21 @@ namespace ExtendedAssetEditor
             }
         }
 
-        public delegate void OnOptionsChanged();
-        public event OnOptionsChanged eventChanged;
-
-        public DisplayOptions()
+        public bool ShowSettingsPanel
         {
-            if(activeOptions == null)
+            get
             {
-                activeOptions = this;
+                return m_showSettings;
+            }
+            set
+            {
+                m_showSettings = value;
+                eventChanged?.Invoke();
             }
         }
+
+
+        public delegate void OnOptionsChanged();
+        public event OnOptionsChanged eventChanged;
     }
 }

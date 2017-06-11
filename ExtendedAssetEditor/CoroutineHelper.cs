@@ -51,6 +51,7 @@ namespace ExtendedAssetEditor
             if(GameObject == null)
             {
                 GameObject = new GameObject("Coroutine Helper");
+                DontDestroyOnLoad(GameObject);
             }
         }
     }
@@ -63,7 +64,7 @@ namespace ExtendedAssetEditor
             Debug.Log("Coroutine Helper Object created!");
         }
 
-        public override void OnLevelUnloading()
+        public override void OnReleased()
         {
             if(CoroutineHelper.GameObject != null)
             {
