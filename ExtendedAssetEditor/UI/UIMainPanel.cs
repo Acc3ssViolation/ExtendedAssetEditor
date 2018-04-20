@@ -714,16 +714,8 @@ namespace ExtendedAssetEditor.UI
 
                 }
 
-                if(m_selectedVehicleInfo.m_vehicleAI is TrainAI)
-                {
-                    m_lightAddButton.isVisible = true;
-                    m_lightRemoveButton.isVisible = true;
-                }
-                else
-                {
-                    m_lightAddButton.isVisible = false;
-                    m_lightRemoveButton.isVisible = false;
-                }
+                m_lightAddButton.isVisible = true;
+                m_lightRemoveButton.isVisible = true;
 
                 if(listIndex >= 0 && listIndex < m_vehicleDropdown.items.Length)
                 {
