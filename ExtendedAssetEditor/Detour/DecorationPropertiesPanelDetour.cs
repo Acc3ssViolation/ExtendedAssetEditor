@@ -1,95 +1,74 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Reflection;
+using ColossalFramework.UI;
+using UnityEngine;
+using Harmony;
+using System.Runtime.CompilerServices;
 
 namespace ExtendedAssetEditor.Detour
 {
-    public class DecorationPropertiesPanelDetour : DecorationPropertiesPanel
+    /// <summary>
+    /// Detours PrefabInfo methods
+    /// </summary>
+    public class DecorationPropertiesPanelDetour : IDetour
     {
-        private List<DetourItem> m_detours;
+        private static MethodInfo addFieldInfo;
 
         public DecorationPropertiesPanelDetour()
         {
-            m_detours = new List<DetourItem>();
-            MethodInfo original, detour;
+            // private UIComponent AddField(UIComponent container, string locale, float width, Type type, string name, object target, object initialValue)
+            addFieldInfo = typeof(DecorationPropertiesPanel).GetMethod("AddField", BindingFlags.NonPublic | BindingFlags.Instance, null,
+                new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(object), typeof(object) }, 
+                null);
 
-            original = typeof(ToolManager).GetMethod("ProcessIndirectFields", BindingFlags.Instance | BindingFlags.NonPublic);
-            detour = GetType().GetMethod("ProcessIndirectFieldsDetour", BindingFlags.Instance | BindingFlags.NonPublic);
-            m_detours.Add(new DetourItem("DecorationPropertiesPanel.ProcessIndirectFields", original, detour));
+            Util.Log("AddField MethodInfo exists: " + (addFieldInfo != null).ToString());
         }
 
         public void Deploy()
         {
-            foreach(var detour in m_detours)
+            var harmony = HarmonyInstance.Create(Mod.harmonyPackage);
+            Version currentVersion;
+            if(harmony.VersionInfo(out currentVersion).ContainsKey(Mod.harmonyPackage))
             {
-                detour.Deploy();
+                Util.LogWarning("Harmony patches already present");
+                return;
             }
+            Util.Log("Harmony v" + currentVersion, true);
+
+            // Harmony
+
+            // private UIComponent AddField(UIComponent container, string locale, float width, Type type, string name, int arrayIndex, object target, object initialValue)
+            var addFieldSrc = typeof(DecorationPropertiesPanel).GetMethod("AddField", BindingFlags.NonPublic | BindingFlags.Instance, null,
+                new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(int), typeof(object), typeof(object) },
+                null);
+
+            var addFieldPost = typeof(DecorationPropertiesPanelDetour).GetMethod("AddField_Postfix", BindingFlags.Static | BindingFlags.Public);
+
+            Util.Log("DecorationPropertiesPanel.TrySpawn is " + (addFieldSrc == null ? "null" : "not null"));
+            Util.Log("Patching methods...", true);
+
+            harmony.Patch(addFieldSrc, new HarmonyMethod(addFieldPost), null);
+
+            Util.Log("Harmony patches applied", true);
+
         }
 
         public void Revert()
         {
-            foreach(var detour in m_detours)
-            {
-                detour.Revert();
-            }
+            // TODO: Revert when possible
         }
 
-        public void ProcessIndirectFieldsDetour()
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void AddField_Postfix(DecorationPropertiesPanel __instance, UIComponent container, Type type, float width, object target)
         {
-            BuildingInfo buildingInfo = ToolsModifierControl.toolController.m_editPrefabInfo as BuildingInfo;
-            VehicleInfo vehicleInfo = ToolsModifierControl.toolController.m_editPrefabInfo as VehicleInfo;
-            if(buildingInfo != null)
+            if(type == typeof(VehicleInfo.MeshInfo))
             {
-                if(!this.m_UseTemplateMilestone)
-                {
-                    buildingInfo.m_UnlockMilestone = null;
-                }
-                buildingInfo.m_useColorVariations = this.m_UseColorVariations;
-            }
-            if(vehicleInfo != null)
-            {
-                VehicleInfo trailerAsset = this.m_TrailerAsset;
-                if(trailerAsset != null)
-                {
-                    if(this.m_TrailerOffsetComponent != null)
-                    {
-                        DecorationPropertiesPanel.ReflectionInfo reflectionInfo = this.m_TrailerOffsetField.objectUserData as DecorationPropertiesPanel.ReflectionInfo;
-                        if(reflectionInfo != null && (VehicleInfo)reflectionInfo.targetObject != trailerAsset)
-                        {
-                            reflectionInfo.targetObject = trailerAsset;
-                            this.m_TrailerOffsetField.objectUserData = reflectionInfo;
-                            this.m_TrailerOffsetField.text = trailerAsset.m_attachOffsetFront.ToString();
-                            this.m_TrailerOffsetComponent.isVisible = (trailerAsset != null);
-                        }
-                    }
-                    if(this.m_TrailerCount > DecorationPropertiesPanel.m_MaxTrailers)
-                    {
-                        this.m_TrailerCount = DecorationPropertiesPanel.m_MaxTrailers;
-                        if(this.m_TrailerCountField != null)
-                        {
-                            this.m_TrailerCountField.color = Color.red;
-                        }
-                    }
-                    vehicleInfo.m_trailers = new VehicleInfo.VehicleTrailer[this.m_TrailerCount];
-                    for(int i = 0; i < this.m_TrailerCount; i++)
-                    {
-                        vehicleInfo.m_trailers[i].m_info = trailerAsset;
-                        vehicleInfo.m_trailers[i].m_invertProbability = 0;
-                        vehicleInfo.m_trailers[i].m_probability = 100;
-                    }
-                    this.CopyTrailerColorFromMain();
-                }
-                else
-                {
-                    vehicleInfo.m_trailers = null;
-                    if(this.m_TrailerOffsetComponent != null)
-                    {
-                        this.m_TrailerOffsetComponent.isVisible = false;
-                    }
-                }
+                var info = (VehicleInfo.MeshInfo)target;
+                addFieldInfo.Invoke(__instance, new object[] { container, "Variation", width, typeof(int), "m_variationMask", target, info.m_variationMask });
             }
         }
     }
-}*/
+}

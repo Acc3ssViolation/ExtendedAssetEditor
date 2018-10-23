@@ -29,6 +29,7 @@ namespace ExtendedAssetEditor
         {
             m_detours.Add(new RenderingDetours());
             m_detours.Add(new PrefabInfoDetour());
+            m_detours.Add(new DecorationPropertiesPanelDetour());
         }
 
         public override void OnLevelLoaded(LoadMode mode)

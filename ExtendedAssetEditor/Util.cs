@@ -11,6 +11,23 @@ namespace ExtendedAssetEditor
         private static Dictionary<Type, Dictionary<int, string>> m_lightEffectDict = new Dictionary<Type, Dictionary<int, string>>();
         private static bool m_initialized;
 
+        public static void Log(object message, bool always = false)
+        {
+            //if(!enableLogs && !always) { return; }
+
+            Debug.Log(Mod.name + ": " + message.ToString());
+        }
+
+        public static void LogError(object message)
+        {
+            Debug.LogError(Mod.name + ": " + message.ToString());
+        }
+
+        public static void LogWarning(object message)
+        {
+            Debug.LogWarning(Mod.name + ": " + message.ToString());
+        }
+
         /// <summary>
         /// Checks if info has an effect named effectName and returns the index of the effect. -1 if no effect can be found.
         /// </summary>

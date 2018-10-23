@@ -12,7 +12,7 @@ namespace ExtendedAssetEditor.UI
     public class UIDisplayOptions : UIPanel
     {
         public const int WIDTH = 220;
-        public const int HEIGHT = 280;
+        public const int HEIGHT = 310 - 30;
 
         private UIDropDown m_directionDropdown;
         private UICheckBox m_doorCheckbox;
@@ -21,7 +21,7 @@ namespace ExtendedAssetEditor.UI
         private UICheckBox m_landingCheckbox;
         private UICheckBox m_takeOffCheckbox;
         private UICheckBox m_showSettingsCheckbox;
-
+        private UIIntField m_variationFlags;
 
         public override void Start()
         {
@@ -134,6 +134,18 @@ namespace ExtendedAssetEditor.UI
             m_showSettingsCheckbox.relativePosition = new Vector3(10, headerHeight + 200);
             m_showSettingsCheckbox.width = WIDTH - 20;
             m_showSettingsCheckbox.tooltip = "Show settings panel.";
+
+            // Variation flag box
+            // TODO: Use a proper dropdown, although this should work for now
+            /*m_variationFlags = UIIntField.CreateField("Variation:", 80, this, false);
+            m_variationFlags.textField.text = "0";
+            m_variationFlags.panel.relativePosition = new Vector3(10, headerHeight + 230);
+            m_variationFlags.textField.eventTextChanged += (c, text) =>
+            {
+                int tmp = DisplayOptions.activeOptions.VariationFlags;
+                m_variationFlags.IntFieldHandler(ref tmp);
+                DisplayOptions.activeOptions.VariationFlags = tmp;
+            };*/
         }
     }
 }

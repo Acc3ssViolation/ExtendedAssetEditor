@@ -33,6 +33,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>Libs\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Z:\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -65,9 +68,9 @@
   <ItemGroup>
     <Compile Include="AssetBundles\AssetBundleLoader.cs" />
     <Compile Include="CoroutineHelper.cs" />
-    <Compile Include="Detour\DecorationPropertiesPanelDetour.cs" />
     <Compile Include="Detour\DetourItem.cs" />
     <Compile Include="Detour\IDetour.cs" />
+    <Compile Include="Detour\DecorationPropertiesPanelDetour.cs" />
     <Compile Include="Detour\PrefabInfoDetour.cs" />
     <Compile Include="Detour\RedirectionHelper.cs" />
     <Compile Include="DisplayOptions.cs" />
@@ -86,6 +89,7 @@
     <Compile Include="UI\UIDisplayOptions.cs" />
     <Compile Include="UI\UIDoorTool.cs" />
     <Compile Include="UI\UIFastList.cs" />
+    <Compile Include="UI\UIIntField.cs" />
     <Compile Include="UI\UIFloatField.cs" />
     <Compile Include="UI\UIMainPanel.cs" />
     <Compile Include="UI\UIParentPanel.cs" />

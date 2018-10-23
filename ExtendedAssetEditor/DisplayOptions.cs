@@ -31,6 +31,7 @@ namespace ExtendedAssetEditor
         private bool m_showLanding = false;
         private bool m_showTakeOff = false;
         private bool m_showSettings = true;
+        private int m_variantionFlags = 0;
 
         private CoroutineHelper m_helper;
 
@@ -120,6 +121,19 @@ namespace ExtendedAssetEditor
             set
             {
                 m_showSettings = value;
+                eventChanged?.Invoke();
+            }
+        }
+
+        public int VariationFlags
+        {
+            get
+            {
+                return m_variantionFlags;
+            }
+            set
+            {
+                m_variantionFlags = value;
                 eventChanged?.Invoke();
             }
         }
