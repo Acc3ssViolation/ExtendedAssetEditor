@@ -143,7 +143,7 @@ namespace ExtendedAssetEditor.Detour
                 flags |= Vehicle.Flags.Emergency2;
             }
 
-            Vehicle.RenderInstance(cameraInfo, info, position, rotation, Vector3.zero, Vector4.zero, Vector4.zero, Vector3.zero, 0f, info.m_color0, flags, DisplayOptions.activeOptions.VariationFlags, InstanceID.Empty, false, true);
+            Vehicle.RenderInstance(cameraInfo, info, position, rotation, Vector3.zero, Vector4.zero, Vector4.zero, Vector3.zero, 0f, info.m_color0, flags, -1, InstanceID.Empty, false, true);
             // End of VehicleInfo.RenderMesh
         }
     }
