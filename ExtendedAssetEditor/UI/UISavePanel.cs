@@ -375,6 +375,7 @@ namespace ExtendedAssetEditor.UI
                         trailerInfo.m_trailers = null;
 
                         // Add stuff to package
+                        //PackVariationMasksInSubMeshNames(trailerInfo);    // Don't actually do it for trailers, they should already have the name set correctly
                         Package.Asset trailerAsset = package.AddAsset(trailerInfo.name, trailerInfo.gameObject);
 
                         package.AddAsset(packageName + "_trailer" + addedTrailers.Count, new CustomAssetMetaData
@@ -402,6 +403,7 @@ namespace ExtendedAssetEditor.UI
             }
 
             // Add lead vehicle to package
+            PackVariationMasksInSubMeshNames(leadInfo);
             Package.Asset leadAsset = package.AddAsset(assetName + "_Data", leadInfo.gameObject);
 
             // Previews
@@ -462,6 +464,22 @@ namespace ExtendedAssetEditor.UI
 
             m_info = null;
             isVisible = false;
+        }
+
+        private void PackVariationMasksInSubMeshNames(VehicleInfo info, bool overwrite)
+        {
+            if(info.m_subMeshes != null)
+            {
+                foreach(var submesh in info.m_subMeshes)
+                {
+                    if(submesh.m_subInfo != null && submesh.m_subInfo.m_mesh != null)
+                    {
+                        if(!overwrite && submesh.m_subInfo.m_mesh.name.Contains("TrailerVariation")) { continue; }
+
+                        submesh.m_subInfo.m_mesh.name = "TrailerVariation " + submesh.m_variationMask;
+                    }
+                }
+            }
         }
 
         private string GetSavePathName(string saveName)
