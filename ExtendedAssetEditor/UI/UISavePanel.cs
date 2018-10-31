@@ -403,7 +403,7 @@ namespace ExtendedAssetEditor.UI
             }
 
             // Add lead vehicle to package
-            PackVariationMasksInSubMeshNames(leadInfo);
+            PackVariationMasksInSubMeshNames(leadInfo, true);
             Package.Asset leadAsset = package.AddAsset(assetName + "_Data", leadInfo.gameObject);
 
             // Previews
@@ -472,7 +472,8 @@ namespace ExtendedAssetEditor.UI
             {
                 foreach(var submesh in info.m_subMeshes)
                 {
-                    if(submesh.m_subInfo != null && submesh.m_subInfo.m_mesh != null)
+                    // ONLY write if the submesh variation mask is NOT 0. This leaves the option to use other mods that put info in the submesh mesh name (e.g. additive shader)
+                    if(submesh.m_subInfo != null && submesh.m_subInfo.m_mesh != null && submesh.m_variationMask != 0)
                     {
                         if(!overwrite && submesh.m_subInfo.m_mesh.name.Contains("TrailerVariation")) { continue; }
 
