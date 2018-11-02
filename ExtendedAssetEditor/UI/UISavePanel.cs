@@ -403,6 +403,21 @@ namespace ExtendedAssetEditor.UI
             }
 
             // Add lead vehicle to package
+
+            var assetImport = FindObjectOfType<AssetImporterAssetImport>();
+            if(assetImport == null)
+            {
+                Util.LogWarning("Unable to find AssetImporterAssetImport object");
+            }
+            else if(string.IsNullOrEmpty(leadInfo.m_Thumbnail)) // Regenerate thumbnails because they are pretty
+            {
+                var thumbnails = new Texture2D[5];
+                thumbnails[0] = null;
+                assetImport.m_PreviewCamera.target = leadInfo.gameObject;
+                AssetImporterThumbnails.CreateThumbnails(leadInfo.gameObject, null, assetImport.m_PreviewCamera);
+            }
+
+            FixSubmeshInfoNames(leadInfo);
             PackVariationMasksInSubMeshNames(leadInfo, true);
             Package.Asset leadAsset = package.AddAsset(assetName + "_Data", leadInfo.gameObject);
 
@@ -464,6 +479,31 @@ namespace ExtendedAssetEditor.UI
 
             m_info = null;
             isVisible = false;
+        }
+
+        /// <summary>
+        /// Prevents duplicate submesh names from existing
+        /// </summary>
+        /// <param name="info"></param>
+        private void FixSubmeshInfoNames(VehicleInfo info)
+        {
+            var names = new Dictionary<string, int>();
+            if(info.m_subMeshes != null)
+            {
+                foreach(var submesh in info.m_subMeshes)
+                {
+                    if(submesh.m_subInfo == null) { continue; }
+
+                    if(names.ContainsKey(submesh.m_subInfo.name))
+                    {
+                        submesh.m_subInfo.name = submesh.m_subInfo.name + " " + names[submesh.m_subInfo.name]++;
+                    }
+                    else
+                    {
+                        names.Add(submesh.m_subInfo.name, 1);
+                    }
+                }
+            }
         }
 
         private void PackVariationMasksInSubMeshNames(VehicleInfo info, bool overwrite)

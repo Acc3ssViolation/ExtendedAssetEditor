@@ -5,7 +5,7 @@ namespace ExtendedAssetEditor
     public class Mod : IUserMod
     {
         public const string name = "Extended Asset Editor";
-        public const string versionString = "0.4.10a";
+        public const string versionString = "0.4.11";
         public const string harmonyPackage = "com.github.accessviolation.eae";
 
         public string Description
