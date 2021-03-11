@@ -5,7 +5,7 @@ using System.Text;
 using System.Reflection;
 using ColossalFramework.UI;
 using UnityEngine;
-using Harmony;
+using HarmonyLib;
 using System.Runtime.CompilerServices;
 
 namespace ExtendedAssetEditor.Detour
@@ -29,9 +29,9 @@ namespace ExtendedAssetEditor.Detour
 
         public void Deploy()
         {
-            var harmony = HarmonyInstance.Create(Mod.harmonyPackage);
+            var harmony = new Harmony(Mod.harmonyPackage);
             Version currentVersion;
-            if(harmony.VersionInfo(out currentVersion).ContainsKey(Mod.harmonyPackage))
+            if(Harmony.VersionInfo(out currentVersion).ContainsKey(Mod.harmonyPackage))
             {
                 Util.LogWarning("Harmony patches already present");
                 return;

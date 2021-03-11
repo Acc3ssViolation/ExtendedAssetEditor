@@ -14,6 +14,7 @@ namespace ExtendedAssetEditor
     {
         private static GameObject m_gameObject;
         private static GameObject m_uiObject;
+        private static DecorationPropertiesPanelDetour m_harmonyDetour;
 
         private List<IDetour> m_detours = new List<IDetour>();
 
@@ -29,13 +30,25 @@ namespace ExtendedAssetEditor
         {
             m_detours.Add(new RenderingDetours());
             m_detours.Add(new PrefabInfoDetour());
-            m_detours.Add(new DecorationPropertiesPanelDetour());
+            // Special handling since it needs Harmony
+            //m_detours.Add(new DecorationPropertiesPanelDetour());
+        }
+
+        public void OnEnabled()
+        {
+            CitiesHarmony.API.HarmonyHelper.EnsureHarmonyInstalled();
         }
 
         public override void OnLevelLoaded(LoadMode mode)
         {
             if(Mod.IsValidLoadMode(mode))
             {
+                if (CitiesHarmony.API.HarmonyHelper.IsHarmonyInstalled)
+                {
+                    m_harmonyDetour = new DecorationPropertiesPanelDetour();
+                    m_harmonyDetour.Deploy();
+                }
+
                 foreach(var detour in m_detours)
                 {
                     detour.Deploy();
@@ -75,6 +88,10 @@ namespace ExtendedAssetEditor
                 foreach(var detour in m_detours)
                 {
                     detour.Revert();
+                }
+                if (CitiesHarmony.API.HarmonyHelper.IsHarmonyInstalled && m_harmonyDetour != null)
+                {
+                    m_harmonyDetour.Revert();
                 }
                 GameObject.Destroy(m_gameObject);
             }
