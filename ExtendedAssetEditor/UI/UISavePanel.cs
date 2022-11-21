@@ -378,6 +378,7 @@ namespace ExtendedAssetEditor.UI
                         //PackVariationMasksInSubMeshNames(trailerInfo);    // Don't actually do it for trailers, they should already have the name set correctly
                         Package.Asset trailerAsset = package.AddAsset(trailerInfo.name, trailerInfo.gameObject);
 
+                        AssetImporterAssetTemplate.GetAssetDLCMask(trailerInfo, out var expensionMask, out var modderMask);
                         package.AddAsset(packageName + "_trailer" + addedTrailers.Count, new CustomAssetMetaData
                         {
                             assetRef = trailerAsset,
@@ -386,7 +387,8 @@ namespace ExtendedAssetEditor.UI
                             steamTags = steamTags,
                             type = CustomAssetMetaData.Type.Trailer,
                             timeStamp = DateTime.Now,
-                            dlcMask = AssetImporterAssetTemplate.GetAssetDLCMask(trailerInfo),
+                            expansionMask = expensionMask,
+                            modderPackMask = modderMask,
                             mods = EmbedModInfo()
                         }, UserAssetType.CustomAssetMetaData);
 
@@ -436,6 +438,8 @@ namespace ExtendedAssetEditor.UI
                 imageRef = package.AddAsset(assetName + "_Snapshot", image, false, Image.BufferFileFormat.PNG, false, false);
             }
 
+            // TODO: Should we instead OR this with the trailer assets as well?
+            AssetImporterAssetTemplate.GetAssetDLCMask(leadInfo, out var leadExpensionMask, out var leadModderMask);
             package.AddAsset(packageName, new CustomAssetMetaData
             {
                 // Name of asset
@@ -455,7 +459,8 @@ namespace ExtendedAssetEditor.UI
                 // Type of this asset
                 type = CustomAssetMetaData.Type.Vehicle,
                 // DLCs required for this asset
-                dlcMask = AssetImporterAssetTemplate.GetAssetDLCMask(leadInfo),
+                expansionMask = leadExpensionMask,
+                modderPackMask = leadModderMask,
                 // Mods active when making asset
                 mods = EmbedModInfo()
             }, UserAssetType.CustomAssetMetaData, false);

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using ExtendedAssetEditor.Detour;
-using ExtendedAssetEditor.AssetBundles;
-using ICities;
 using ColossalFramework;
 using ColossalFramework.UI;
 using System.Reflection;
-using ColossalFramework.Packaging;
 
 namespace ExtendedAssetEditor.Detour
 {
