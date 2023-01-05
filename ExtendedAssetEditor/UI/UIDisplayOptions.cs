@@ -1,10 +1,5 @@
-﻿using ColossalFramework;
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 using ICities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace ExtendedAssetEditor.UI
@@ -12,7 +7,7 @@ namespace ExtendedAssetEditor.UI
     public class UIDisplayOptions : UIPanel
     {
         public const int WIDTH = 220;
-        public const int HEIGHT = 310 - 30;
+        public const int HEIGHT = 330;
 
         private UIDropDown m_directionDropdown;
         private UICheckBox m_doorCheckbox;
@@ -21,7 +16,8 @@ namespace ExtendedAssetEditor.UI
         private UICheckBox m_landingCheckbox;
         private UICheckBox m_takeOffCheckbox;
         private UICheckBox m_showSettingsCheckbox;
-        private UIIntField m_variationFlags;
+        private UICheckBox m_useGateIndexCheckbox;
+        private UIIntField m_gateIndex;
 
         public override void Start()
         {
@@ -39,18 +35,39 @@ namespace ExtendedAssetEditor.UI
             relativePosition = new Vector3(10 + UIMainPanel.WIDTH + 10 + UISettingsPanel.WIDTH + 10, 10);
 
             // Events
-            PrefabWatcher.instance.prefabBecameVehicle += () =>
-            {
-                Debug.Log("Prefab became vehicle");
-                isVisible = true;
-            };
-            PrefabWatcher.instance.prefabWasVehicle += () =>
-            {
-                Debug.Log("Prefab was vehicle");
-                isVisible = false;
-            };
+            PrefabWatcher.instance.prefabBecameVehicle += OnBecameVehicle;
+            PrefabWatcher.instance.prefabWasVehicle += OnWasVehicle;
+            DisplayOptions.activeOptions.eventChanged += OnOptionsChanged;
 
             CreateComponents();
+            OnOptionsChanged();
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            // Events
+            PrefabWatcher.instance.prefabBecameVehicle -= OnBecameVehicle;
+            PrefabWatcher.instance.prefabWasVehicle -= OnWasVehicle;
+            DisplayOptions.activeOptions.eventChanged -= OnOptionsChanged;
+        }
+
+        private void OnBecameVehicle()
+        {
+            Debug.Log("Prefab became vehicle");
+            isVisible = true;
+        }
+
+        private void OnWasVehicle()
+        {
+            Debug.Log("Prefab was vehicle");
+            isVisible = false;
+        }
+
+        private void OnOptionsChanged()
+        {
+            m_gateIndex.panel.isVisible = DisplayOptions.activeOptions.UseGateIndex;
         }
 
         private void CreateComponents()
@@ -135,17 +152,25 @@ namespace ExtendedAssetEditor.UI
             m_showSettingsCheckbox.width = WIDTH - 20;
             m_showSettingsCheckbox.tooltip = "Show settings panel.";
 
-            // Variation flag box
-            // TODO: Use a proper dropdown, although this should work for now
-            /*m_variationFlags = UIIntField.CreateField("Variation:", 80, this, false);
-            m_variationFlags.textField.text = "0";
-            m_variationFlags.panel.relativePosition = new Vector3(10, headerHeight + 230);
-            m_variationFlags.textField.eventTextChanged += (c, text) =>
+            // Use gate index
+            m_useGateIndexCheckbox = (UICheckBox)uiHelper.AddCheckbox("Use gate index", DisplayOptions.activeOptions.UseGateIndex, (b) => {
+                DisplayOptions.activeOptions.UseGateIndex = b;
+            });
+            m_useGateIndexCheckbox.relativePosition = new Vector3(10, headerHeight + 230);
+            m_useGateIndexCheckbox.width = WIDTH - 20;
+            m_useGateIndexCheckbox.tooltip = "Use gate index for rendering.";
+
+            // Gate index
+            m_gateIndex = UIIntField.CreateField("Gate index:", WIDTH - 20 - 90 - 10, this, false);
+            m_gateIndex.textField.text = "0";
+            m_gateIndex.panel.relativePosition = new Vector3(10, headerHeight + 260);
+            m_gateIndex.textField.eventTextChanged += (c, text) =>
             {
-                int tmp = DisplayOptions.activeOptions.VariationFlags;
-                m_variationFlags.IntFieldHandler(ref tmp);
-                DisplayOptions.activeOptions.VariationFlags = tmp;
-            };*/
+                int tmp = DisplayOptions.activeOptions.GateIndex;
+                m_gateIndex.RangedIntFieldHandler(ref tmp, 0, 9);
+                DisplayOptions.activeOptions.GateIndex = tmp;
+            };
+            m_gateIndex.label.tooltip = "Select which gate index to preview.";
         }
     }
 }

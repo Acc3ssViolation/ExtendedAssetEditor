@@ -73,10 +73,14 @@
   <ItemGroup>
     <Compile Include="CoroutineHelper.cs" />
     <Compile Include="Detour\DetourItem.cs" />
+    <Compile Include="Detour\HarmonyDetours.cs" />
     <Compile Include="Detour\IDetour.cs" />
     <Compile Include="Detour\DecorationPropertiesPanelDetour.cs" />
+    <Compile Include="Detour\BuildingDecorationDetour.cs" />
+    <Compile Include="Detour\IHarmonyDetour.cs" />
     <Compile Include="Detour\PrefabInfoDetour.cs" />
     <Compile Include="Detour\RedirectionHelper.cs" />
+    <Compile Include="Detour\VehicleDetours.cs" />
     <Compile Include="DisplayOptions.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModLoadingExtension.cs" />

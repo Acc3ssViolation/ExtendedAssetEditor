@@ -31,7 +31,8 @@ namespace ExtendedAssetEditor
         private bool m_showLanding = false;
         private bool m_showTakeOff = false;
         private bool m_showSettings = true;
-        private int m_variantionFlags = 0;
+        private int m_gateIndex = 0;
+        private bool m_useGateIndex = false;
 
         private CoroutineHelper m_helper;
 
@@ -125,15 +126,25 @@ namespace ExtendedAssetEditor
             }
         }
 
-        public int VariationFlags
+        public int GateIndex
         {
             get
             {
-                return m_variantionFlags;
+                return m_gateIndex;
             }
             set
             {
-                m_variantionFlags = value;
+                m_gateIndex = value;
+                eventChanged?.Invoke();
+            }
+        }
+
+        public bool UseGateIndex
+        {
+            get => m_useGateIndex;
+            set
+            {
+                m_useGateIndex = value;
                 eventChanged?.Invoke();
             }
         }

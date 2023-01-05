@@ -28,6 +28,11 @@ namespace ExtendedAssetEditor.UI
             IntFieldHandler(this.textField, this.textField.text, ref target);
         }
 
+        public void RangedIntFieldHandler(ref int target, int min, int max)
+        {
+            RangedIntFieldHandler(this.textField, this.textField.text, ref target, min, max);
+        }
+
         public static UIIntField CreateField(string label, UIComponent parent, bool buttons = true)
         {
             UIIntField field = new UIIntField();
@@ -73,8 +78,20 @@ namespace ExtendedAssetEditor.UI
 
         public static void IntFieldHandler(UITextField field, string value, ref int target)
         {
-            int v;
-            if(int.TryParse(value, out v))
+            if (int.TryParse(value, out int v))
+            {
+                target = v;
+                field.color = Color.white;
+            }
+            else
+            {
+                field.color = Color.red;
+            }
+        }
+
+        public static void RangedIntFieldHandler(UITextField field, string value, ref int target, int min, int max)
+        {
+            if (int.TryParse(value, out int v) && v >= min && v <= max)
             {
                 target = v;
                 field.color = Color.white;

@@ -13,7 +13,7 @@ namespace ExtendedAssetEditor.Detour
     /// <summary>
     /// Detours PrefabInfo methods
     /// </summary>
-    public class DecorationPropertiesPanelDetour : IDetour
+    public class DecorationPropertiesPanelDetour : IHarmonyDetour
     {
         private static MethodInfo addFieldInfo;
 
@@ -27,19 +27,8 @@ namespace ExtendedAssetEditor.Detour
             Util.Log("AddField MethodInfo exists: " + (addFieldInfo != null).ToString());
         }
 
-        public void Deploy()
+        public void Deploy(Harmony harmony)
         {
-            var harmony = new Harmony(Mod.harmonyPackage);
-            Version currentVersion;
-            if(Harmony.VersionInfo(out currentVersion).ContainsKey(Mod.harmonyPackage))
-            {
-                Util.LogWarning("Harmony patches already present");
-                return;
-            }
-            Util.Log("Harmony v" + currentVersion, true);
-
-            // Harmony
-
             // private UIComponent AddField(UIComponent container, string locale, float width, Type type, string name, int arrayIndex, object target, object initialValue)
             var addFieldSrc = typeof(DecorationPropertiesPanel).GetMethod("AddField", BindingFlags.NonPublic | BindingFlags.Instance, null,
                 new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(int), typeof(object), typeof(object) },
@@ -48,15 +37,11 @@ namespace ExtendedAssetEditor.Detour
             var addFieldPost = typeof(DecorationPropertiesPanelDetour).GetMethod("AddField_Postfix", BindingFlags.Static | BindingFlags.Public);
 
             Util.Log("DecorationPropertiesPanel.TrySpawn is " + (addFieldSrc == null ? "null" : "not null"));
-            Util.Log("Patching methods...", true);
 
             harmony.Patch(addFieldSrc, new HarmonyMethod(addFieldPost), null);
-
-            Util.Log("Harmony patches applied", true);
-
         }
 
-        public void Revert()
+        public void Revert(Harmony harmony)
         {
             // TODO: Revert when possible
         }
