@@ -7,7 +7,7 @@ namespace ExtendedAssetEditor.UI
     public class UIDisplayOptions : UIPanel
     {
         public const int WIDTH = 220;
-        public const int HEIGHT = 330;
+        public const int HEIGHT = 340;
 
         private UIDropDown m_directionDropdown;
         private UICheckBox m_doorCheckbox;
@@ -17,7 +17,22 @@ namespace ExtendedAssetEditor.UI
         private UICheckBox m_takeOffCheckbox;
         private UICheckBox m_showSettingsCheckbox;
         private UICheckBox m_useGateIndexCheckbox;
-        private UIIntField m_gateIndex;
+        private UIDropDown m_gateIndex;
+
+        // Mapped from TransferManager.TransferReason via CargoTrainAI.RefreshVariations
+        private static readonly string[] GateIndexNames = new string[]
+        {
+            "Generic",
+            "Generic empty",
+            "Animal products",
+            "Grain",
+            "Logs",
+            "Logs empty",
+            "Oil products",
+            "Ore",
+            "Ore empty",
+            "(not for trains)"
+        };
 
         public override void Start()
         {
@@ -67,7 +82,7 @@ namespace ExtendedAssetEditor.UI
 
         private void OnOptionsChanged()
         {
-            m_gateIndex.panel.isVisible = DisplayOptions.activeOptions.UseGateIndex;
+            m_gateIndex.isVisible = DisplayOptions.activeOptions.UseGateIndex;
         }
 
         private void CreateComponents()
@@ -153,24 +168,26 @@ namespace ExtendedAssetEditor.UI
             m_showSettingsCheckbox.tooltip = "Show settings panel.";
 
             // Use gate index
-            m_useGateIndexCheckbox = (UICheckBox)uiHelper.AddCheckbox("Use gate index", DisplayOptions.activeOptions.UseGateIndex, (b) => {
+            m_useGateIndexCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show cargo", DisplayOptions.activeOptions.UseGateIndex, (b) => {
                 DisplayOptions.activeOptions.UseGateIndex = b;
             });
             m_useGateIndexCheckbox.relativePosition = new Vector3(10, headerHeight + 230);
             m_useGateIndexCheckbox.width = WIDTH - 20;
-            m_useGateIndexCheckbox.tooltip = "Use gate index for rendering.";
+            m_useGateIndexCheckbox.tooltip = "Enable cargo variation preview using submeshes.";
 
             // Gate index
-            m_gateIndex = UIIntField.CreateField("Gate index:", WIDTH - 20 - 90 - 10, this, false);
-            m_gateIndex.textField.text = "0";
-            m_gateIndex.panel.relativePosition = new Vector3(10, headerHeight + 260);
-            m_gateIndex.textField.eventTextChanged += (c, text) =>
+            m_gateIndex = UIUtils.CreateDropDown(this);
+            m_gateIndex.width = WIDTH - 20;
+            m_gateIndex.relativePosition = new Vector3(10, headerHeight + 260);
+            for (var i = 0; i < GateIndexNames.Length; i++)
             {
-                int tmp = DisplayOptions.activeOptions.GateIndex;
-                m_gateIndex.RangedIntFieldHandler(ref tmp, 0, 9);
-                DisplayOptions.activeOptions.GateIndex = tmp;
+                m_gateIndex.AddItem(i.ToString() + " - " + GateIndexNames[i]);
+            }
+            m_gateIndex.selectedIndex = 0;
+            m_gateIndex.eventSelectedIndexChanged += (c, i) => {
+                DisplayOptions.activeOptions.GateIndex = i;
             };
-            m_gateIndex.label.tooltip = "Select which gate index to preview.";
+            m_gateIndex.tooltip = "Select a cargo type to preview.";
         }
     }
 }
