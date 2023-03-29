@@ -51,9 +51,54 @@ namespace ExtendedAssetEditor.Detour
         {
             if(type == typeof(VehicleInfo.MeshInfo))
             {
+                // TODO: Turn this into a dropdown, possibly with the option of a numerical override
                 var info = (VehicleInfo.MeshInfo)target;
-                addFieldInfo.Invoke(__instance, new object[] { container, "Variation", width, typeof(int), "m_variationMask", target, info.m_variationMask });
+                var fieldName = nameof(info.m_variationMask);
+                var hasVariationField = IsFieldReferenceAdded(container, fieldName);
+                if (!hasVariationField)
+                    addFieldInfo.Invoke(__instance, new object[] { container, "Variation", width, typeof(int), fieldName, target, info.m_variationMask });
+                else
+                    Util.Log($"Variation field was already added for submesh '{info.m_subInfo.name}'");
             }
+        }
+
+        private static bool IsFieldReferenceAdded(UIComponent container, string fieldName, object target = null)
+        {
+            return container.components.Any((c) =>
+            {
+                var info = c.Find<UITextField>("Value")?.objectUserData;
+                if (info == null)
+                    return false;
+
+                try
+                {
+                    // Oh lord above
+                    unsafe
+                    {
+                        var typed = *(ReflectionInfo*)&info;
+                        if (typed.targetObject == target && typed.fieldName == fieldName)
+                            return true;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Util.LogError(e);
+                }
+
+                return false;
+            });
+        }
+
+        // Copy of DecorationPropertiesPanel.ReflectionInfo
+        private class ReflectionInfo
+        {
+            public object targetObject;
+
+            public string fieldName;
+
+            public int elementIndex = -1;
+
+            public ReflectionInfo nestedInfo;
         }
     }
 }
