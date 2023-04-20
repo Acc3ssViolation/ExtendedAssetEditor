@@ -47,18 +47,23 @@ namespace ExtendedAssetEditor.Detour
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void AddField_Postfix(DecorationPropertiesPanel __instance, UIComponent container, Type type, float width, object target)
+        public static void AddField_Postfix(DecorationPropertiesPanel __instance, UIComponent container, string locale, Type type, float width, string name, object target)
         {
-            if(type == typeof(VehicleInfo.MeshInfo))
+            var wasMainMeshField = type == typeof(Vehicle.Flags) && name == "m_vehicleFlagsForbidden" && locale.StartsWith("Hide Main Mesh Cond.", StringComparison.CurrentCultureIgnoreCase);
+            var wasSubMeshField = type == typeof(VehicleInfo.MeshInfo);
+            var variationLocale = wasMainMeshField ? "Main Mesh Variation" : "Variation";
+            if (wasMainMeshField || wasSubMeshField)
             {
                 // TODO: Turn this into a dropdown, possibly with the option of a numerical override
                 var info = (VehicleInfo.MeshInfo)target;
                 var fieldName = nameof(info.m_variationMask);
                 var hasVariationField = IsFieldReferenceAdded(container, fieldName);
                 if (!hasVariationField)
-                    addFieldInfo.Invoke(__instance, new object[] { container, "Variation", width, typeof(int), fieldName, target, info.m_variationMask });
-                else
+                    addFieldInfo.Invoke(__instance, new object[] { container, variationLocale, width, typeof(int), fieldName, target, info.m_variationMask });
+                else if (info.m_subInfo != null)
                     Util.Log($"Variation field was already added for submesh '{info.m_subInfo.name}'");
+                else
+                    Util.Log($"Variation field was already added for main mesh");
             }
         }
 
