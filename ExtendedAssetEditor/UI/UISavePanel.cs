@@ -363,19 +363,21 @@ namespace ExtendedAssetEditor.UI
                             // Default, Trailer0
                             trailerInfo.name = "Trailer" + addedTrailers.Count;
                         }
-                       
 
+                        // TODO: Figure out why this was ever added
                         // Fix for 1.6
-                        try { trailerInfo.m_mesh.name += packageName; } catch(Exception e) { Debug.LogException(e); Debug.Log("me"); } ;
-                        try { trailerInfo.m_lodMesh.name += packageName; } catch(Exception e) { Debug.LogException(e); Debug.Log("lme"); };
-                        try { trailerInfo.m_material.name += packageName; } catch(Exception e) { Debug.LogException(e); Debug.Log("m"); };
-                        try { trailerInfo.m_lodMaterial.name += packageName; } catch(Exception e) { Debug.LogException(e); Debug.Log("lm"); };
+                        var postFix = " " + packageName;
+                        try { trailerInfo.m_mesh.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("me"); } ;
+                        try { trailerInfo.m_lodMesh.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("lme"); };
+                        try { trailerInfo.m_material.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("m"); };
+                        try { trailerInfo.m_lodMaterial.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("lm"); };
 
                         // Needed because of the 'set engine' feature.
                         trailerInfo.m_trailers = null;
 
                         // Add stuff to package
                         //PackVariationMasksInSubMeshNames(trailerInfo);    // Don't actually do it for trailers, they should already have the name set correctly
+                        Util.CleanUpNames(trailerInfo.gameObject);
                         Package.Asset trailerAsset = package.AddAsset(trailerInfo.name, trailerInfo.gameObject);
 
                         AssetImporterAssetTemplate.GetAssetDLCMask(trailerInfo, out var expensionMask, out var modderMask);
@@ -420,7 +422,8 @@ namespace ExtendedAssetEditor.UI
             }
 
             FixSubmeshInfoNames(leadInfo);
-            PackVariationMasksInSubMeshNames(leadInfo, true);
+            PackVariationMasksInSubMeshNames(leadInfo);
+            Util.CleanUpNames(leadInfo.gameObject);
             Package.Asset leadAsset = package.AddAsset(assetName + "_Data", leadInfo.gameObject);
 
             // Previews
@@ -492,6 +495,7 @@ namespace ExtendedAssetEditor.UI
         /// <param name="info"></param>
         private void FixSubmeshInfoNames(VehicleInfo info)
         {
+            // TODO: Figure out why this was ever added
             var names = new Dictionary<string, int>();
             if(info.m_subMeshes != null)
             {
@@ -511,18 +515,25 @@ namespace ExtendedAssetEditor.UI
             }
         }
 
-        private void PackVariationMasksInSubMeshNames(VehicleInfo info, bool overwrite)
+        private void PackVariationMasksInSubMeshNames(VehicleInfo info)
         {
             if(info.m_subMeshes != null)
             {
                 foreach(var submesh in info.m_subMeshes)
                 {
                     // ONLY write if the submesh variation mask is NOT 0. This leaves the option to use other mods that put info in the submesh mesh name (e.g. additive shader)
-                    if(submesh.m_subInfo != null && submesh.m_subInfo.m_mesh != null && submesh.m_variationMask != 0)
+                    if(submesh.m_variationMask != 0)
                     {
-                        if(!overwrite && submesh.m_subInfo.m_mesh.name.Contains("TrailerVariation")) { continue; }
-
-                        submesh.m_subInfo.m_mesh.name = "TrailerVariation " + submesh.m_variationMask;
+                        if (submesh.m_subInfo != null && submesh.m_subInfo.m_mesh != null)
+                        {
+                            // Regular submesh, store it on the submesh mesh
+                            submesh.m_subInfo.m_mesh.name = "TrailerVariation " + submesh.m_variationMask;
+                        }
+                        else if (submesh.m_subInfo == null && info.m_mesh != null)
+                        {
+                            // Info for main mesh, dump it on the main model mesh
+                            info.m_mesh.name = "TrailerVariation " + submesh.m_variationMask;
+                        }
                     }
                 }
             }

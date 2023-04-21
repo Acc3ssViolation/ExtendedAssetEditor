@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace ExtendedAssetEditor
@@ -333,6 +332,48 @@ namespace ExtendedAssetEditor
                                 component3.sharedMaterial.SetColor("_Color", color);
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        private static readonly Regex WhiteSpaceCleanup = new Regex(@"\s+", RegexOptions.Compiled);
+
+        public static void CleanUpNames(UnityEngine.Object obj)
+        {
+            if (obj == null)
+                return;
+
+            var originalName = obj.name;
+            var name = obj.name.Replace("(Instance)", "");
+            name = WhiteSpaceCleanup.Replace(name, " ");
+            obj.name = name.Trim();
+
+            if (!string.Equals(originalName, obj.name, StringComparison.Ordinal))
+            {
+                Log($"Replaced name '{originalName}' with '{obj.name}'");
+            }
+
+            if (obj is GameObject gameObject)
+            {
+                foreach (var component in gameObject.GetComponentsInChildren<UnityEngine.Object>())
+                {
+                    CleanUpNames(component);
+                }
+            }
+
+            if (obj is VehicleInfoBase vehicleInfoBase)
+            {
+                CleanUpNames(vehicleInfoBase.m_lodObject);
+            }
+
+            if (obj is VehicleInfo vehicleInfo)
+            {
+                if (vehicleInfo.m_subMeshes != null)
+                {
+                    foreach (var mesh in vehicleInfo.m_subMeshes)
+                    {
+                        CleanUpNames(mesh.m_subInfo?.gameObject);
                     }
                 }
             }
