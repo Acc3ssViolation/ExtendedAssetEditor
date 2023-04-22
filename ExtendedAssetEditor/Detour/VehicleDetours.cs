@@ -1,12 +1,79 @@
 ﻿using ColossalFramework;
+using Epic.OnlineServices.Presence;
 using UnityEngine;
+using static PathUnit;
 using static Vehicle;
 
 namespace ExtendedAssetEditor.Detour
 {
     internal static class VehicleDetours
     {
-        // This is a slightly modified copy of the original Vehicle.RenderInstance implementation because trying to do this via patching is a massive pain
+        private static void RenderLodMesh(VehicleInfoBase info, Matrix4x4 tyreMatrix, Vector4 lightState, Vector4 tyrePosition, ref Matrix4x4 bodyMatrix)
+        {
+            VehicleManager instance2 = Singleton<VehicleManager>.instance;
+            MaterialPropertyBlock materialBlock2 = instance2.m_materialBlock;
+            materialBlock2.Clear();
+            materialBlock2.SetMatrix(instance2.ID_TyreMatrix, tyreMatrix);
+            materialBlock2.SetVector(instance2.ID_TyrePosition, tyrePosition);
+            materialBlock2.SetVector(instance2.ID_LightState, lightState);
+            Mesh mesh = null;
+            Material material = null;
+            if (info.m_lodObject != null)
+            {
+                MeshFilter component = info.m_lodObject.GetComponent<MeshFilter>();
+                if (component != null)
+                {
+                    mesh = component.sharedMesh;
+                }
+
+                Renderer component2 = info.m_lodObject.GetComponent<Renderer>();
+                if (component2 != null)
+                {
+                    material = component2.sharedMaterial;
+                }
+            }
+
+            if (mesh != null && material != null)
+            {
+                materialBlock2.SetVectorArray(instance2.ID_TyreLocation, info.m_generatedInfo.m_tyres);
+                Graphics.DrawMesh(mesh, bodyMatrix, material, info.m_prefabDataLayer, null, 0, materialBlock2);
+            }
+        }
+
+        private static void RenderLodMesh(VehicleInfo info, Vector3 position, Quaternion rotation, Vector4 lightState, Vector4 tyrePosition, Flags flags, ref Vector3 scale, ref Matrix4x4 bodyMatrix)
+        {
+            Matrix4x4 value2 = info.m_vehicleAI.CalculateTyreMatrix(flags, ref position, ref rotation, ref scale, ref bodyMatrix);
+            VehicleManager instance2 = Singleton<VehicleManager>.instance;
+            MaterialPropertyBlock materialBlock2 = instance2.m_materialBlock;
+            materialBlock2.Clear();
+            materialBlock2.SetMatrix(instance2.ID_TyreMatrix, value2);
+            materialBlock2.SetVector(instance2.ID_TyrePosition, tyrePosition);
+            materialBlock2.SetVector(instance2.ID_LightState, lightState);
+            Mesh mesh = null;
+            Material material = null;
+            if (info.m_lodObject != null)
+            {
+                MeshFilter component = info.m_lodObject.GetComponent<MeshFilter>();
+                if (component != null)
+                {
+                    mesh = component.sharedMesh;
+                }
+
+                Renderer component2 = info.m_lodObject.GetComponent<Renderer>();
+                if (component2 != null)
+                {
+                    material = component2.sharedMaterial;
+                }
+            }
+
+            if (mesh != null && material != null)
+            {
+                materialBlock2.SetVectorArray(instance2.ID_TyreLocation, info.m_generatedInfo.m_tyres);
+                Graphics.DrawMesh(mesh, bodyMatrix, material, info.m_prefabDataLayer, null, 0, materialBlock2);
+            }
+        }
+
+        // This is a modified copy of the original Vehicle.RenderInstance implementation because trying to do this via patching is a massive pain
         public static void RenderInstance(RenderManager.CameraInfo cameraInfo, VehicleInfo info, Vector3 position, Quaternion rotation, Vector3 swayPosition, Vector4 lightState, Vector4 tyrePosition, Vector3 velocity, float acceleration, Color color, Flags flags, int variationMask, InstanceID id, bool underground, bool overground)
         {
             if ((cameraInfo.m_layerMask & (1 << info.m_prefabDataLayer)) == 0)
@@ -27,7 +94,7 @@ namespace ExtendedAssetEditor.Detour
 
             // CHANGE: We allow using the in-game rendering checks using an option
             bool isAssetEditor = Singleton<ToolManager>.instance.m_properties.m_mode == ItemClass.Availability.AssetEditor;
-            var useAssetEditorRendering = (!DisplayOptions.ActiveOptions.UseGateIndex) && isAssetEditor;
+            var useDefaultEditorRendering = (!DisplayOptions.ActiveOptions.UseGateIndex) && isAssetEditor;
 
             info.m_vehicleAI.RenderExtraStuff(id.Vehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id.Vehicle], cameraInfo, id, position, rotation, tyrePosition, lightState, scale, swayPosition, underground, overground);
             if (cameraInfo.CheckRenderDistance(position, info.m_lodRenderDistance))
@@ -82,7 +149,7 @@ namespace ExtendedAssetEditor.Detour
                         VehicleInfoBase subInfo = meshInfo.m_subInfo;
                         
                         // CHANGE: Asset editor rendering
-                        if ((!useAssetEditorRendering && ((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None) || (useAssetEditorRendering && BuildingDecoration.IsSubMeshRendered(subInfo)))
+                        if ((!useDefaultEditorRendering && ((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None) || (useDefaultEditorRendering && BuildingDecoration.IsSubMeshRendered(subInfo)))
                         {
                             if (!(subInfo != null))
                             {
@@ -151,36 +218,47 @@ namespace ExtendedAssetEditor.Detour
             }
 
             Matrix4x4 bodyMatrix2 = info.m_vehicleAI.CalculateBodyMatrix(flags, ref position, ref rotation, ref scale, ref swayPosition);
+            // CHANGE: Asset editor rendering
             if (Singleton<ToolManager>.instance.m_properties.m_mode == ItemClass.Availability.AssetEditor)
             {
-                Matrix4x4 value2 = info.m_vehicleAI.CalculateTyreMatrix(flags, ref position, ref rotation, ref scale, ref bodyMatrix2);
-                VehicleManager instance2 = Singleton<VehicleManager>.instance;
-                MaterialPropertyBlock materialBlock2 = instance2.m_materialBlock;
-                materialBlock2.Clear();
-                materialBlock2.SetMatrix(instance2.ID_TyreMatrix, value2);
-                materialBlock2.SetVector(instance2.ID_TyrePosition, tyrePosition);
-                materialBlock2.SetVector(instance2.ID_LightState, lightState);
-                Mesh mesh = null;
-                Material material = null;
-                if (info.m_lodObject != null)
-                {
-                    MeshFilter component = info.m_lodObject.GetComponent<MeshFilter>();
-                    if (component != null)
-                    {
-                        mesh = component.sharedMesh;
-                    }
+                // The LOD rendering logic further down the method may not work, because the combined LOD meshes are not always present for the main meshes of editor assets.
+                // In case they are missing we will render them ourselves.
+                var missingCombinedLodMeshes = info.m_lodMeshCombined1 == null;
+                var useDefaultLodRendering = true;
 
-                    Renderer component2 = info.m_lodObject.GetComponent<Renderer>();
-                    if (component2 != null)
+                if (!useDefaultEditorRendering)
+                {
+                    if (missingCombinedLodMeshes && info.m_subMeshes != null)
                     {
-                        material = component2.sharedMaterial;
+                        var tyreMatrix = info.m_vehicleAI.CalculateTyreMatrix(flags, ref position, ref rotation, ref scale, ref bodyMatrix2);
+                        for (int l = 0; l < info.m_subMeshes.Length; l++)
+                        {
+                            if (info.m_subMeshes[l].m_subInfo == null)
+                            {
+                                VehicleInfo.MeshInfo meshInfo = info.m_subMeshes[l];
+                                VehicleInfoBase subInfo = meshInfo.m_subInfo;
+                                if (((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None)
+                                {
+                                    if (subInfo == null)
+                                    {
+                                        continue;
+                                    }
+
+                                    RenderLodMesh(subInfo, tyreMatrix, lightState, tyrePosition, ref bodyMatrix2);
+                                }
+                                else if (subInfo == null)
+                                {
+                                    // Main mesh should be hidden
+                                    useDefaultLodRendering = false;
+                                }
+                            }
+                        }
                     }
                 }
-
-                if (mesh != null && material != null)
+                
+                if (useDefaultLodRendering)
                 {
-                    materialBlock2.SetVectorArray(instance2.ID_TyreLocation, info.m_generatedInfo.m_tyres);
-                    Graphics.DrawMesh(mesh, bodyMatrix2, material, info.m_prefabDataLayer, null, 0, materialBlock2);
+                    RenderLodMesh(info, position, rotation, lightState, tyrePosition, flags, ref scale, ref bodyMatrix2);
                 }
             }
             else if (Singleton<InfoManager>.instance.CurrentMode == InfoManager.InfoMode.None)
@@ -207,11 +285,9 @@ namespace ExtendedAssetEditor.Detour
                 {
                     VehicleInfo.MeshInfo meshInfo = info.m_subMeshes[l];
                     VehicleInfoBase subInfo = meshInfo.m_subInfo;
-                    // CHANGE: Asset editor rendering
-                    if ((!useAssetEditorRendering && ((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None) || (useAssetEditorRendering && BuildingDecoration.IsSubMeshRendered(subInfo)))
-                    //    if (((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None)
+                    if (((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None)
                     {
-                        if (!(subInfo != null))
+                        if (subInfo == null)
                         {
                             continue;
                         }
