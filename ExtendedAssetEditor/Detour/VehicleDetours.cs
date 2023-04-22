@@ -25,6 +25,10 @@ namespace ExtendedAssetEditor.Detour
                 lightState.w = vector.z;
             }
 
+            // CHANGE: We allow using the in-game rendering checks using an option
+            bool isAssetEditor = Singleton<ToolManager>.instance.m_properties.m_mode == ItemClass.Availability.AssetEditor;
+            var useAssetEditorRendering = (!DisplayOptions.ActiveOptions.UseGateIndex) && isAssetEditor;
+
             info.m_vehicleAI.RenderExtraStuff(id.Vehicle, ref Singleton<VehicleManager>.instance.m_vehicles.m_buffer[id.Vehicle], cameraInfo, id, position, rotation, tyrePosition, lightState, scale, swayPosition, underground, overground);
             if (cameraInfo.CheckRenderDistance(position, info.m_lodRenderDistance))
             {
@@ -59,7 +63,6 @@ namespace ExtendedAssetEditor.Detour
                 materialBlock.SetMatrix(instance.ID_TyreMatrix, value);
                 materialBlock.SetVector(instance.ID_TyrePosition, tyrePosition);
                 materialBlock.SetVector(instance.ID_LightState, lightState);
-                bool isAssetEditor = Singleton<ToolManager>.instance.m_properties.m_mode == ItemClass.Availability.AssetEditor;
                 if (!isAssetEditor)
                 {
                     materialBlock.SetColor(instance.ID_Color, color);
@@ -78,9 +81,7 @@ namespace ExtendedAssetEditor.Detour
                         VehicleInfo.MeshInfo meshInfo = info.m_subMeshes[j];
                         VehicleInfoBase subInfo = meshInfo.m_subInfo;
                         
-                        // CHANGE: We allow using the in-game rendering checks using an option
-                        var useAssetEditorRendering = (!DisplayOptions.ActiveOptions.UseGateIndex) && isAssetEditor;
-
+                        // CHANGE: Asset editor rendering
                         if ((!useAssetEditorRendering && ((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None) || (useAssetEditorRendering && BuildingDecoration.IsSubMeshRendered(subInfo)))
                         {
                             if (!(subInfo != null))
@@ -199,56 +200,58 @@ namespace ExtendedAssetEditor.Detour
                 }
             }
 
-            bool flag3 = true;
+            bool renderMainLodMesh = true;
             if (info.m_subMeshes != null)
             {
                 for (int l = 0; l < info.m_subMeshes.Length; l++)
                 {
-                    VehicleInfo.MeshInfo meshInfo2 = info.m_subMeshes[l];
-                    VehicleInfoBase subInfo2 = meshInfo2.m_subInfo;
-                    if (((meshInfo2.m_vehicleFlagsRequired | meshInfo2.m_vehicleFlagsForbidden) & flags) == meshInfo2.m_vehicleFlagsRequired && (meshInfo2.m_variationMask & variationMask) == 0 && meshInfo2.m_parkedFlagsRequired == VehicleParked.Flags.None)
+                    VehicleInfo.MeshInfo meshInfo = info.m_subMeshes[l];
+                    VehicleInfoBase subInfo = meshInfo.m_subInfo;
+                    // CHANGE: Asset editor rendering
+                    if ((!useAssetEditorRendering && ((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None) || (useAssetEditorRendering && BuildingDecoration.IsSubMeshRendered(subInfo)))
+                    //    if (((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None)
                     {
-                        if (!(subInfo2 != null))
+                        if (!(subInfo != null))
                         {
                             continue;
                         }
 
                         if (underground)
                         {
-                            subInfo2.m_undergroundLodTransforms[subInfo2.m_undergroundLodCount] = bodyMatrix2;
-                            subInfo2.m_undergroundLodLightStates[subInfo2.m_undergroundLodCount] = lightState;
-                            ref Vector4 reference = ref subInfo2.m_undergroundLodColors[subInfo2.m_undergroundLodCount];
+                            subInfo.m_undergroundLodTransforms[subInfo.m_undergroundLodCount] = bodyMatrix2;
+                            subInfo.m_undergroundLodLightStates[subInfo.m_undergroundLodCount] = lightState;
+                            ref Vector4 reference = ref subInfo.m_undergroundLodColors[subInfo.m_undergroundLodCount];
                             reference = color.linear;
-                            subInfo2.m_undergroundLodMin = Vector3.Min(subInfo2.m_undergroundLodMin, position);
-                            subInfo2.m_undergroundLodMax = Vector3.Max(subInfo2.m_undergroundLodMax, position);
-                            if (++subInfo2.m_undergroundLodCount == subInfo2.m_undergroundLodTransforms.Length)
+                            subInfo.m_undergroundLodMin = Vector3.Min(subInfo.m_undergroundLodMin, position);
+                            subInfo.m_undergroundLodMax = Vector3.Max(subInfo.m_undergroundLodMax, position);
+                            if (++subInfo.m_undergroundLodCount == subInfo.m_undergroundLodTransforms.Length)
                             {
-                                RenderUndergroundLod(cameraInfo, subInfo2);
+                                RenderUndergroundLod(cameraInfo, subInfo);
                             }
                         }
 
                         if (overground)
                         {
-                            subInfo2.m_lodTransforms[subInfo2.m_lodCount] = bodyMatrix2;
-                            subInfo2.m_lodLightStates[subInfo2.m_lodCount] = lightState;
-                            ref Vector4 reference2 = ref subInfo2.m_lodColors[subInfo2.m_lodCount];
+                            subInfo.m_lodTransforms[subInfo.m_lodCount] = bodyMatrix2;
+                            subInfo.m_lodLightStates[subInfo.m_lodCount] = lightState;
+                            ref Vector4 reference2 = ref subInfo.m_lodColors[subInfo.m_lodCount];
                             reference2 = color.linear;
-                            subInfo2.m_lodMin = Vector3.Min(subInfo2.m_lodMin, position);
-                            subInfo2.m_lodMax = Vector3.Max(subInfo2.m_lodMax, position);
-                            if (++subInfo2.m_lodCount == subInfo2.m_lodTransforms.Length)
+                            subInfo.m_lodMin = Vector3.Min(subInfo.m_lodMin, position);
+                            subInfo.m_lodMax = Vector3.Max(subInfo.m_lodMax, position);
+                            if (++subInfo.m_lodCount == subInfo.m_lodTransforms.Length)
                             {
-                                RenderLod(cameraInfo, subInfo2);
+                                RenderLod(cameraInfo, subInfo);
                             }
                         }
                     }
-                    else if (subInfo2 == null)
+                    else if (subInfo == null)
                     {
-                        flag3 = false;
+                        renderMainLodMesh = false;
                     }
                 }
             }
 
-            if (!flag3)
+            if (!renderMainLodMesh)
             {
                 return;
             }
