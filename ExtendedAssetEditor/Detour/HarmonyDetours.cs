@@ -1,55 +1,41 @@
 ﻿using HarmonyLib;
 using System;
-using UnityEngine;
 
 namespace ExtendedAssetEditor.Detour
 {
     internal class HarmonyDetours : IDetour
     {
-        private IHarmonyDetour[] m_detours = new IHarmonyDetour[] { 
+        private readonly IHarmonyDetour[] _detours = new IHarmonyDetour[] { 
             new DecorationPropertiesPanelDetour(),
-            // TODO: Enable this if we want to use it for variation displays
-            //new BuildingDecorationDetour(),
         };
 
-        private Harmony m_harmony;
+        private Harmony _harmony;
 
         public void Deploy()
         {
-            if (m_harmony != null)
+            if (_harmony != null)
             {
                 Util.LogWarning("Harmony patches already present");
                 return;
             }
 
-            var harmony = new Harmony(Mod.harmonyPackage);
+            var harmony = new Harmony(Mod.HarmonyPackage);
             Harmony.VersionInfo(out Version currentVersion);
             
             Util.Log("Harmony v" + currentVersion, true);
 
-            foreach (var detour in m_detours)
+            foreach (var detour in _detours)
             {
                 detour.Deploy(harmony);
             }
 
             Util.Log("Harmony patches applied", true);
-            m_harmony = harmony;
+            _harmony = harmony;
         }
 
         public void Revert()
         {
-            if (m_harmony== null)
-            {
-                return;
-            }
-
-            foreach (var detour in m_detours)
-            {
-                detour.Revert(m_harmony);
-            }
-            m_harmony = null;
-
-            Util.Log("Harmony patches removed", true);
+            throw new NotSupportedException("Cannot revert Harmony patches");
         }
     }
 }

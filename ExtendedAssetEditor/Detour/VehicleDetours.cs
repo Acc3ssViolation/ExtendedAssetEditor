@@ -1,9 +1,4 @@
 ﻿using ColossalFramework;
-using ExtendedAssetEditor.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using static Vehicle;
 
@@ -84,7 +79,7 @@ namespace ExtendedAssetEditor.Detour
                         VehicleInfoBase subInfo = meshInfo.m_subInfo;
                         
                         // CHANGE: We allow using the in-game rendering checks using an option
-                        var useAssetEditorRendering = (!DisplayOptions.activeOptions.UseGateIndex) && isAssetEditor;
+                        var useAssetEditorRendering = (!DisplayOptions.ActiveOptions.UseGateIndex) && isAssetEditor;
 
                         if ((!useAssetEditorRendering && ((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None) || (useAssetEditorRendering && BuildingDecoration.IsSubMeshRendered(subInfo)))
                         {

@@ -39,7 +39,7 @@ namespace ExtendedAssetEditor.UI
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Doors Panel";
+            name = Mod.ModName + " Doors Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;
@@ -47,12 +47,12 @@ namespace ExtendedAssetEditor.UI
             relativePosition = new Vector3(10 + UIMainPanel.WIDTH + 10 + UISettingsPanel.WIDTH + 10 + UIDisplayOptions.WIDTH + 10, 10);
 
             // Events
-            PrefabWatcher.instance.prefabBecameVehicle += () =>
+            PrefabWatcher.Instance.PrefabBecameVehicle += () =>
             {
-                isVisible = DisplayOptions.activeOptions.ShowDoors;
+                isVisible = DisplayOptions.ActiveOptions.ShowDoors;
                 UpdateMarkerVisibility();
             };
-            PrefabWatcher.instance.prefabWasVehicle += () =>
+            PrefabWatcher.Instance.PrefabWasVehicle += () =>
             {
                 isVisible = false;
                 UpdateMarkerVisibility();
@@ -66,9 +66,9 @@ namespace ExtendedAssetEditor.UI
                 Debug.Log("Selected changed");
                 UpdateDoorList();
             };
-            DisplayOptions.activeOptions.eventChanged += () =>
+            DisplayOptions.ActiveOptions.EventChanged += () =>
             {
-                isVisible = DisplayOptions.activeOptions.ShowDoors;
+                isVisible = DisplayOptions.ActiveOptions.ShowDoors;
                 UpdateMarkerVisibility();
             };
 

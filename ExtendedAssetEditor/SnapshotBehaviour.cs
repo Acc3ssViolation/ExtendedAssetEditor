@@ -1,30 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ExtendedAssetEditor
 {
     public class SnapshotBehaviour : MonoBehaviour
     {
-        void Update()
+        public void Update()
         {
             if(Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.S))
             {
-                DoTheThing(SnapshotTool.SnapshotMode.Snapshot);
+                TakeSnapshot(SnapshotTool.SnapshotMode.Snapshot);
             }
             else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.T))
             {
-                DoTheThing(SnapshotTool.SnapshotMode.Thumbnail);
+                TakeSnapshot(SnapshotTool.SnapshotMode.Thumbnail);
             }
             else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.I))
             {
-                DoTheThing(SnapshotTool.SnapshotMode.Infotooltip);
+                TakeSnapshot(SnapshotTool.SnapshotMode.Infotooltip);
             }
         }
 
-        void DoTheThing(SnapshotTool.SnapshotMode mode)
+        private void TakeSnapshot(SnapshotTool.SnapshotMode mode)
         {
             var currentTool = ToolsModifierControl.toolController.CurrentTool;
             SnapshotTool tool = ToolsModifierControl.SetTool<SnapshotTool>();

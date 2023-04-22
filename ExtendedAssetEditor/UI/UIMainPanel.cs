@@ -76,7 +76,7 @@ namespace ExtendedAssetEditor.UI
             }
             else
             {
-                Debug.LogWarning("Multiple UIMainPanels for " + Mod.name);
+                Debug.LogWarning("Multiple UIMainPanels for " + Mod.ModName);
             }
 
             base.Start();
@@ -85,7 +85,7 @@ namespace ExtendedAssetEditor.UI
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Main Panel";
+            name = Mod.ModName + " Main Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;
@@ -113,23 +113,23 @@ namespace ExtendedAssetEditor.UI
             m_settingsPanel.transform.SetParent(transform.parent);
 
             // Events
-            PrefabWatcher.instance.prefabBecameVehicle += () =>
+            PrefabWatcher.Instance.PrefabBecameVehicle += () =>
             {
                 Debug.Log("Prefab became vehicle");
                 isVisible = true;
                 UpdateVehicleInfo();
             };
-            PrefabWatcher.instance.prefabWasVehicle += () =>
+            PrefabWatcher.Instance.PrefabWasVehicle += () =>
             {
                 Debug.Log("Prefab was vehicle");
                 isVisible = false;
             };
-            PrefabWatcher.instance.trailersChanged += (string[] names) =>
+            PrefabWatcher.Instance.TrailersChanged += (string[] names) =>
             {
                 Debug.Log("Trailers changed");
                 UpdateVehicleInfo();
             };
-            PrefabWatcher.instance.prefabChanged += () =>
+            PrefabWatcher.Instance.PrefabChanged += () =>
             {
                 Debug.Log("Prefab changed");
                 UpdateVehicleInfo();
@@ -594,7 +594,7 @@ namespace ExtendedAssetEditor.UI
                 {
                     if(vehicle.m_effects[i].m_effect == null)
                     {
-                        ConfirmPanel.ShowModal(Mod.name, "Detected missing effect on vehicle " + vehicle.name + ", do you want EAE to remove this for you? Click cancel to ignore this warning.", delegate (UIComponent comp, int ret)
+                        ConfirmPanel.ShowModal(Mod.ModName, "Detected missing effect on vehicle " + vehicle.name + ", do you want EAE to remove this for you? Click cancel to ignore this warning.", delegate (UIComponent comp, int ret)
                         {
                             if(ret == 1)
                             {

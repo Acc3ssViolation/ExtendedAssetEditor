@@ -25,7 +25,7 @@ namespace ExtendedAssetEditor.UI.Effects
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Add Effects Panel";
+            name = Mod.ModName + " Add Effects Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;

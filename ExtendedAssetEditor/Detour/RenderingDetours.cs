@@ -12,21 +12,21 @@ namespace ExtendedAssetEditor.Detour
     /// </summary>
     public class RenderingDetours : IDetour
     {
-        private List<DetourItem> m_detours;
+        private readonly List<DetourItem> _detours;
 
         public RenderingDetours()
         {
-            m_detours = new List<DetourItem>();
+            _detours = new List<DetourItem>();
             MethodInfo original, detour;
 
             original = typeof(ToolManager).GetMethod("EndRenderingImpl", BindingFlags.Instance | BindingFlags.NonPublic);
-            detour = GetType().GetMethod("EndRenderingImpl", BindingFlags.Instance | BindingFlags.NonPublic);
-            m_detours.Add(new DetourItem("ToolManager.EndRenderingImpl", original, detour));
+            detour = GetType().GetMethod(nameof(EndRenderingImpl), BindingFlags.Instance | BindingFlags.NonPublic);
+            _detours.Add(new DetourItem("ToolManager.EndRenderingImpl", original, detour));
         }
 
         public void Deploy()
         {
-            foreach(var detour in m_detours)
+            foreach(var detour in _detours)
             {
                 detour.Deploy();
             }
@@ -34,7 +34,7 @@ namespace ExtendedAssetEditor.Detour
 
         public void Revert()
         {
-            foreach(var detour in m_detours)
+            foreach(var detour in _detours)
             {
                 detour.Revert();
             }
@@ -118,28 +118,28 @@ namespace ExtendedAssetEditor.Detour
                 flags |= Vehicle.Flags.Inverted;
             }
             // Effect display options
-            if(DisplayOptions.activeOptions.Reversed)
+            if(DisplayOptions.ActiveOptions.Reversed)
             {
                 flags |= Vehicle.Flags.Reversed;
             }
-            if(DisplayOptions.activeOptions.ShowLanding)
+            if(DisplayOptions.ActiveOptions.ShowLanding)
             {
                 flags |= Vehicle.Flags.Landing;
             }
-            if(DisplayOptions.activeOptions.ShowTakeOff)
+            if(DisplayOptions.ActiveOptions.ShowTakeOff)
             {
                 flags |= Vehicle.Flags.TakingOff;
             }
-            if(DisplayOptions.activeOptions.ShowEmergency)
+            if(DisplayOptions.ActiveOptions.ShowEmergency)
             {
                 flags |= Vehicle.Flags.Emergency1;
             }
-            if(DisplayOptions.activeOptions.ShowEmergency2)
+            if(DisplayOptions.ActiveOptions.ShowEmergency2)
             {
                 flags |= Vehicle.Flags.Emergency2;
             }
 
-            var gateIndex = DisplayOptions.activeOptions.GateIndex;
+            var gateIndex = DisplayOptions.ActiveOptions.GateIndex;
             if (gateIndex < 0)
                 gateIndex = 0;
             else if (gateIndex > 31)

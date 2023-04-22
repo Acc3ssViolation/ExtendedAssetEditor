@@ -35,7 +35,7 @@ namespace ExtendedAssetEditor.UI
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Settings Panel";
+            name = Mod.ModName + " Settings Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;
@@ -43,15 +43,15 @@ namespace ExtendedAssetEditor.UI
             relativePosition = new Vector3(10 + UIMainPanel.WIDTH + 10, 10);
 
             // Events
-            DisplayOptions.activeOptions.eventChanged += () =>
+            DisplayOptions.ActiveOptions.EventChanged += () =>
             {
-                isVisible = DisplayOptions.activeOptions.ShowSettingsPanel;
+                isVisible = DisplayOptions.ActiveOptions.ShowSettingsPanel;
             };
-            PrefabWatcher.instance.prefabBecameVehicle += () =>
+            PrefabWatcher.Instance.PrefabBecameVehicle += () =>
             {
-                isVisible = DisplayOptions.activeOptions.ShowSettingsPanel;
+                isVisible = DisplayOptions.ActiveOptions.ShowSettingsPanel;
             };
-            PrefabWatcher.instance.prefabWasVehicle += () =>
+            PrefabWatcher.Instance.PrefabWasVehicle += () =>
             {
                 m_leadVehicle = null;
                 m_vehicle = null;

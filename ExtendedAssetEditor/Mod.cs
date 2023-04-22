@@ -4,15 +4,15 @@ namespace ExtendedAssetEditor
 {
     public class Mod : IUserMod
     {
-        public const string name = "Extended Asset Editor";
-        public const string versionString = "0.7.3";
-        public const string harmonyPackage = "com.github.accessviolation.eae";
+        public const string ModName = "Extended Asset Editor";
+        public const string VersionString = "0.7.4";
+        public const string HarmonyPackage = "com.github.accessviolation.eae";
 
         public string Description
         {
             get
             {
-                return "Version " + versionString + ". Adds various features for dealing with vehicles in the Asset Editor.";
+                return "Version " + VersionString + ". Adds various features for dealing with vehicles in the Asset Editor.";
             }
         }
 
@@ -20,7 +20,7 @@ namespace ExtendedAssetEditor
         {
             get
             {
-                return name;
+                return Name;
             }
         }
 

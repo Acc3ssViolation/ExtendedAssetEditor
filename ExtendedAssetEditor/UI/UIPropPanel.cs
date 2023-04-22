@@ -21,13 +21,13 @@ namespace ExtendedAssetEditor.UI
         {
             base.Start();
 
-            PrefabWatcher.instance.prefabBecameProp += () =>
+            PrefabWatcher.Instance.PrefabBecameProp += () =>
             {
                 Debug.Log("Enabling UIPropPanel");
                 Show();
             };
 
-            PrefabWatcher.instance.prefabWasProp += () =>
+            PrefabWatcher.Instance.PrefabWasProp += () =>
             {
                 Debug.Log("Disabling UIPropPanel");
                 Hide();
@@ -37,7 +37,7 @@ namespace ExtendedAssetEditor.UI
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Prop Panel";
+            name = Mod.ModName + " Prop Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;

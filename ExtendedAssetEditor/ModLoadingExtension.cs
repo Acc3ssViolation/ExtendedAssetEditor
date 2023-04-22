@@ -12,25 +12,25 @@ namespace ExtendedAssetEditor
 {
     public class ModLoadingExtension : LoadingExtensionBase
     {
-        private static GameObject m_gameObject;
-        private static GameObject m_uiObject;
-        private static HarmonyDetours m_harmonyDetours;
+        private static GameObject _gameObject;
+        private static GameObject _uiObject;
+        private static HarmonyDetours _harmonyDetours;
 
-        private List<IDetour> m_detours = new List<IDetour>();
+        private readonly List<IDetour> _detours = new List<IDetour>();
 
         public static GameObject GameObject
         {
             get
             {
-                return m_gameObject;
+                return _gameObject;
             }
         }
 
         public ModLoadingExtension()
         {
             // TODO: Port these to Harmony as well
-            m_detours.Add(new RenderingDetours());
-            m_detours.Add(new PrefabInfoDetour());
+            _detours.Add(new RenderingDetours());
+            _detours.Add(new PrefabInfoDetour());
         }
 
         public void OnEnabled()
@@ -42,36 +42,38 @@ namespace ExtendedAssetEditor
         {
             if(Mod.IsValidLoadMode(mode))
             {
-                if (CitiesHarmony.API.HarmonyHelper.IsHarmonyInstalled)
+                // Since Harmony does not support proper unpatching we must make sure to only deploy it once
+                // (Unpatch actually removes ALL patches on a method, not just the ones we applied)
+                if (CitiesHarmony.API.HarmonyHelper.IsHarmonyInstalled && _harmonyDetours == null)
                 {
-                    m_harmonyDetours = new HarmonyDetours();
-                    m_harmonyDetours.Deploy();
+                    _harmonyDetours = new HarmonyDetours();
+                    _harmonyDetours.Deploy();
                 }
 
-                foreach(var detour in m_detours)
+                foreach(var detour in _detours)
                 {
                     detour.Deploy();
                 }
 
-                m_gameObject = new GameObject(Mod.name);
-                m_gameObject.AddComponent<PrefabWatcher>();
-                m_gameObject.AddComponent<SnapshotBehaviour>();
+                _gameObject = new GameObject(Mod.ModName);
+                _gameObject.AddComponent<PrefabWatcher>();
+                _gameObject.AddComponent<SnapshotBehaviour>();
 
                 // UI
                 UIView view = UIView.GetAView();
-                m_uiObject = new GameObject(Mod.name + " UI");
-                m_uiObject.transform.SetParent(view.transform);
-                var p = m_uiObject.AddComponent<UIPanel>();
+                _uiObject = new GameObject(Mod.ModName + " UI");
+                _uiObject.transform.SetParent(view.transform);
+                var p = _uiObject.AddComponent<UIPanel>();
                 p.relativePosition = Vector2.zero;
                 p.isVisible = true;
                 p.size = Vector3.zero;
                 
                 var o = new GameObject();
-                o.transform.SetParent(m_uiObject.transform);
+                o.transform.SetParent(_uiObject.transform);
                 o.AddComponent<UIMainPanel>();
 
                 o = new GameObject();
-                o.transform.SetParent(m_uiObject.transform);
+                o.transform.SetParent(_uiObject.transform);
                 o.AddComponent<UIPropPanel>();
 
                 // Up the trailer count limit that the default properties panel uses to 100
@@ -82,21 +84,17 @@ namespace ExtendedAssetEditor
 
         public override void OnLevelUnloading()
         {
-            if(m_gameObject != null)
+            if(_gameObject != null)
             {
-                foreach(var detour in m_detours)
+                foreach(var detour in _detours)
                 {
                     detour.Revert();
                 }
-                if (CitiesHarmony.API.HarmonyHelper.IsHarmonyInstalled && m_harmonyDetours != null)
-                {
-                    m_harmonyDetours.Revert();
-                }
-                GameObject.Destroy(m_gameObject);
+                GameObject.Destroy(_gameObject);
             }
-            if(m_uiObject != null)
+            if(_uiObject != null)
             {
-                GameObject.Destroy(m_uiObject);
+                GameObject.Destroy(_uiObject);
             }
         }
     }

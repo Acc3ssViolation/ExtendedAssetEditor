@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using ICities;
 
@@ -9,26 +7,26 @@ namespace ExtendedAssetEditor
 {
     public class CoroutineHelper : MonoBehaviour
     {
-        private const float WAIT_TIME = 0.05f;
+        private const float WaitTime = 0.05f;
 
         public static GameObject GameObject { get; private set; }
 
-        private Action m_action;
+        private Action _action;
 
         /// <summary>
         /// Runs the method with a short delay.
         /// </summary>
-        public void Run(float waitTime = WAIT_TIME)
+        public void Run(float waitTime = WaitTime)
         {
             StartCoroutine(Coroutine(waitTime));
         }
 
-        IEnumerator Coroutine(float waitTime)
+        private IEnumerator Coroutine(float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
             try
             {
-                m_action.Invoke();
+                _action.Invoke();
             }
             catch(Exception e)
             {
@@ -42,7 +40,7 @@ namespace ExtendedAssetEditor
         public static CoroutineHelper Create(Action action)
         {
             var helper = GameObject.AddComponent<CoroutineHelper>();
-            helper.m_action = action;
+            helper._action = action;
             return helper;
         }
 

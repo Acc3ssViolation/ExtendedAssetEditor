@@ -42,7 +42,7 @@ namespace ExtendedAssetEditor.UI
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Display Options Panel";
+            name = Mod.ModName + " Display Options Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;
@@ -50,9 +50,9 @@ namespace ExtendedAssetEditor.UI
             relativePosition = new Vector3(10 + UIMainPanel.WIDTH + 10 + UISettingsPanel.WIDTH + 10, 10);
 
             // Events
-            PrefabWatcher.instance.prefabBecameVehicle += OnBecameVehicle;
-            PrefabWatcher.instance.prefabWasVehicle += OnWasVehicle;
-            DisplayOptions.activeOptions.eventChanged += OnOptionsChanged;
+            PrefabWatcher.Instance.PrefabBecameVehicle += OnBecameVehicle;
+            PrefabWatcher.Instance.PrefabWasVehicle += OnWasVehicle;
+            DisplayOptions.ActiveOptions.EventChanged += OnOptionsChanged;
 
             CreateComponents();
             OnOptionsChanged();
@@ -63,9 +63,9 @@ namespace ExtendedAssetEditor.UI
             base.OnDestroy();
 
             // Events
-            PrefabWatcher.instance.prefabBecameVehicle -= OnBecameVehicle;
-            PrefabWatcher.instance.prefabWasVehicle -= OnWasVehicle;
-            DisplayOptions.activeOptions.eventChanged -= OnOptionsChanged;
+            PrefabWatcher.Instance.PrefabBecameVehicle -= OnBecameVehicle;
+            PrefabWatcher.Instance.PrefabWasVehicle -= OnWasVehicle;
+            DisplayOptions.ActiveOptions.EventChanged -= OnOptionsChanged;
         }
 
         private void OnBecameVehicle()
@@ -82,7 +82,7 @@ namespace ExtendedAssetEditor.UI
 
         private void OnOptionsChanged()
         {
-            m_gateIndex.isVisible = DisplayOptions.activeOptions.UseGateIndex;
+            m_gateIndex.isVisible = DisplayOptions.ActiveOptions.UseGateIndex;
         }
 
         private void CreateComponents()
@@ -115,61 +115,61 @@ namespace ExtendedAssetEditor.UI
             m_directionDropdown.AddItem("Reverse");
             m_directionDropdown.selectedIndex = 0;
             m_directionDropdown.eventSelectedIndexChanged += (c, i) => {
-                DisplayOptions.activeOptions.Reversed = (i == 1);
+                DisplayOptions.ActiveOptions.Reversed = (i == 1);
             };
             m_directionDropdown.tooltip = "Simulates vehicle movement direction so you can preview headlights.";
 
             // Door display
-            m_doorCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show doors", DisplayOptions.activeOptions.ShowDoors, (b) => {
-                DisplayOptions.activeOptions.ShowDoors = b;
+            m_doorCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show doors", DisplayOptions.ActiveOptions.ShowDoors, (b) => {
+                DisplayOptions.ActiveOptions.ShowDoors = b;
             });
             m_doorCheckbox.relativePosition = new Vector3(10, headerHeight + 50);
             m_doorCheckbox.width = WIDTH - 20;
             m_doorCheckbox.tooltip = "Show vehicle door locations and editor.";
 
             // Emergency lights 1
-            m_emergencyCheckbox1 = (UICheckBox)uiHelper.AddCheckbox("Show emergency 1", DisplayOptions.activeOptions.ShowEmergency, (b) => {
-                DisplayOptions.activeOptions.ShowEmergency = b;
+            m_emergencyCheckbox1 = (UICheckBox)uiHelper.AddCheckbox("Show emergency 1", DisplayOptions.ActiveOptions.ShowEmergency, (b) => {
+                DisplayOptions.ActiveOptions.ShowEmergency = b;
             });
             m_emergencyCheckbox1.relativePosition = new Vector3(10, headerHeight + 80);
             m_emergencyCheckbox1.width = WIDTH - 20;
             m_emergencyCheckbox1.tooltip = "Show vehicle emergency effects.";
 
             // Emergency lights 2
-            m_emergencyCheckbox2 = (UICheckBox)uiHelper.AddCheckbox("Show emergency 2", DisplayOptions.activeOptions.ShowEmergency2, (b) => {
-                DisplayOptions.activeOptions.ShowEmergency2 = b;
+            m_emergencyCheckbox2 = (UICheckBox)uiHelper.AddCheckbox("Show emergency 2", DisplayOptions.ActiveOptions.ShowEmergency2, (b) => {
+                DisplayOptions.ActiveOptions.ShowEmergency2 = b;
             });
             m_emergencyCheckbox2.relativePosition = new Vector3(10, headerHeight + 110);
             m_emergencyCheckbox2.width = WIDTH - 20;
             m_emergencyCheckbox2.tooltip = "Show vehicle emergency effects.";
 
             // Takeoff
-            m_takeOffCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show takeoff", DisplayOptions.activeOptions.ShowTakeOff, (b) => {
-                DisplayOptions.activeOptions.ShowTakeOff = b;
+            m_takeOffCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show takeoff", DisplayOptions.ActiveOptions.ShowTakeOff, (b) => {
+                DisplayOptions.ActiveOptions.ShowTakeOff = b;
             });
             m_takeOffCheckbox.relativePosition = new Vector3(10, headerHeight + 140);
             m_takeOffCheckbox.width = WIDTH - 20;
             m_takeOffCheckbox.tooltip = "Show takeoff specific effects.";
 
             // Landing
-            m_landingCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show landing", DisplayOptions.activeOptions.ShowLanding, (b) => {
-                DisplayOptions.activeOptions.ShowLanding = b;
+            m_landingCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show landing", DisplayOptions.ActiveOptions.ShowLanding, (b) => {
+                DisplayOptions.ActiveOptions.ShowLanding = b;
             });
             m_landingCheckbox.relativePosition = new Vector3(10, headerHeight + 170);
             m_landingCheckbox.width = WIDTH - 20;
             m_landingCheckbox.tooltip = "Show landing specific effects.";
 
             // Settings
-            m_showSettingsCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show settings", DisplayOptions.activeOptions.ShowSettingsPanel, (b) => {
-                DisplayOptions.activeOptions.ShowSettingsPanel = b;
+            m_showSettingsCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show settings", DisplayOptions.ActiveOptions.ShowSettingsPanel, (b) => {
+                DisplayOptions.ActiveOptions.ShowSettingsPanel = b;
             });
             m_showSettingsCheckbox.relativePosition = new Vector3(10, headerHeight + 200);
             m_showSettingsCheckbox.width = WIDTH - 20;
             m_showSettingsCheckbox.tooltip = "Show settings panel.";
 
             // Use gate index
-            m_useGateIndexCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show cargo", DisplayOptions.activeOptions.UseGateIndex, (b) => {
-                DisplayOptions.activeOptions.UseGateIndex = b;
+            m_useGateIndexCheckbox = (UICheckBox)uiHelper.AddCheckbox("Show cargo", DisplayOptions.ActiveOptions.UseGateIndex, (b) => {
+                DisplayOptions.ActiveOptions.UseGateIndex = b;
             });
             m_useGateIndexCheckbox.relativePosition = new Vector3(10, headerHeight + 230);
             m_useGateIndexCheckbox.width = WIDTH - 20;
@@ -185,7 +185,7 @@ namespace ExtendedAssetEditor.UI
             }
             m_gateIndex.selectedIndex = 0;
             m_gateIndex.eventSelectedIndexChanged += (c, i) => {
-                DisplayOptions.activeOptions.GateIndex = i;
+                DisplayOptions.ActiveOptions.GateIndex = i;
             };
             m_gateIndex.tooltip = "Select a cargo type to preview.";
         }

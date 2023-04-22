@@ -1,63 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace ExtendedAssetEditor
+﻿namespace ExtendedAssetEditor
 {
     public class DisplayOptions
     {
-        private static DisplayOptions m_activeOptions;
-        public static DisplayOptions activeOptions
+        private static DisplayOptions _activeOptions;
+        public static DisplayOptions ActiveOptions
         {
             get
             {
-                if(m_activeOptions == null)
+                if(_activeOptions == null)
                 {
-                    m_activeOptions = new DisplayOptions();
+                    _activeOptions = new DisplayOptions();
                 }
-                return m_activeOptions;
+                return _activeOptions;
             }
             set
             {
-                m_activeOptions = value;
+                _activeOptions = value;
             }
         }
 
-        private bool m_reversed;
-        private bool m_showDoors = true;
-        private bool m_showEmergency = false;
-        private bool m_showEmergency2 = false;
-        private bool m_showLanding = false;
-        private bool m_showTakeOff = false;
-        private bool m_showSettings = true;
-        private int m_gateIndex = 0;
-        private bool m_useGateIndex = false;
-
-        private CoroutineHelper m_helper;
+        private bool _reversed;
+        private bool _showDoors = true;
+        private bool _showEmergency = false;
+        private bool _showEmergency2 = false;
+        private bool _showLanding = false;
+        private bool _showTakeOff = false;
+        private bool _showSettings = true;
+        private int _gateIndex = 0;
+        private bool _useGateIndex = false;
 
         public bool Reversed
         {
             get
             {
-                return m_reversed;
+                return _reversed;
             }
             set
             {
-                m_reversed = value;
-                eventChanged?.Invoke();
+                _reversed = value;
+                EventChanged?.Invoke();
             }
         }
         public bool ShowDoors
         {
             get
             {
-                return m_showDoors;
+                return _showDoors;
             }
             set
             {
-                m_showDoors = value;
-                eventChanged?.Invoke();
+                _showDoors = value;
+                EventChanged?.Invoke();
             }
         }
 
@@ -65,12 +58,12 @@ namespace ExtendedAssetEditor
         {
             get
             {
-                return m_showEmergency;
+                return _showEmergency;
             }
             set
             {
-                m_showEmergency = value;
-                eventChanged?.Invoke();
+                _showEmergency = value;
+                EventChanged?.Invoke();
             }
         }
 
@@ -78,12 +71,12 @@ namespace ExtendedAssetEditor
         {
             get
             {
-                return m_showEmergency2;
+                return _showEmergency2;
             }
             set
             {
-                m_showEmergency2 = value;
-                eventChanged?.Invoke();
+                _showEmergency2 = value;
+                EventChanged?.Invoke();
             }
         }
 
@@ -91,12 +84,12 @@ namespace ExtendedAssetEditor
         {
             get
             {
-                return m_showLanding;
+                return _showLanding;
             }
             set
             {
-                m_showLanding = value;
-                eventChanged?.Invoke();
+                _showLanding = value;
+                EventChanged?.Invoke();
             }
         }
 
@@ -104,12 +97,12 @@ namespace ExtendedAssetEditor
         {
             get
             {
-                return m_showTakeOff;
+                return _showTakeOff;
             }
             set
             {
-                m_showTakeOff = value;
-                eventChanged?.Invoke();
+                _showTakeOff = value;
+                EventChanged?.Invoke();
             }
         }
 
@@ -117,12 +110,12 @@ namespace ExtendedAssetEditor
         {
             get
             {
-                return m_showSettings;
+                return _showSettings;
             }
             set
             {
-                m_showSettings = value;
-                eventChanged?.Invoke();
+                _showSettings = value;
+                EventChanged?.Invoke();
             }
         }
 
@@ -130,27 +123,27 @@ namespace ExtendedAssetEditor
         {
             get
             {
-                return m_gateIndex;
+                return _gateIndex;
             }
             set
             {
-                m_gateIndex = value;
-                eventChanged?.Invoke();
+                _gateIndex = value;
+                EventChanged?.Invoke();
             }
         }
 
         public bool UseGateIndex
         {
-            get => m_useGateIndex;
+            get => _useGateIndex;
             set
             {
-                m_useGateIndex = value;
-                eventChanged?.Invoke();
+                _useGateIndex = value;
+                EventChanged?.Invoke();
             }
         }
 
 
         public delegate void OnOptionsChanged();
-        public event OnOptionsChanged eventChanged;
+        public event OnOptionsChanged EventChanged;
     }
 }

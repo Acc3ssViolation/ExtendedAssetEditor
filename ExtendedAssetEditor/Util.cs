@@ -14,17 +14,17 @@ namespace ExtendedAssetEditor
         {
             //if(!enableLogs && !always) { return; }
 
-            Debug.Log(Mod.name + ": " + message.ToString());
+            Debug.Log(Mod.ModName + ": " + message.ToString());
         }
 
         public static void LogError(object message)
         {
-            Debug.LogError(Mod.name + ": " + message.ToString());
+            Debug.LogError(Mod.ModName + ": " + message.ToString());
         }
 
         public static void LogWarning(object message)
         {
-            Debug.LogWarning(Mod.name + ": " + message.ToString());
+            Debug.LogWarning(Mod.ModName + ": " + message.ToString());
         }
 
         /// <summary>

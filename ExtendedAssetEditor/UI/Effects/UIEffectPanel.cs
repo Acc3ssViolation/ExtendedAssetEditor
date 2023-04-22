@@ -56,7 +56,7 @@ namespace ExtendedAssetEditor.UI.Effects
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Effects Panel";
+            name = Mod.ModName + " Effects Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;
@@ -72,18 +72,18 @@ namespace ExtendedAssetEditor.UI.Effects
             m_flagsPanel = new GameObject().AddComponent<UIFlagsPanel>();
             m_flagsPanel.transform.SetParent(transform.parent);
 
-            PrefabWatcher.instance.prefabBecameVehicle += () =>
+            PrefabWatcher.Instance.PrefabBecameVehicle += () =>
             {
                 isVisible = m_wasVisible;
-                PrefabWatcher.instance.prefabChanged += OnPrefabChanged;
-                PrefabWatcher.instance.trailersChanged += OnTrailersChanged;
+                PrefabWatcher.Instance.PrefabChanged += OnPrefabChanged;
+                PrefabWatcher.Instance.TrailersChanged += OnTrailersChanged;
                 UpdateVehicles();
             };
-            PrefabWatcher.instance.prefabWasVehicle += () =>
+            PrefabWatcher.Instance.PrefabWasVehicle += () =>
             {
                 Hide();
-                PrefabWatcher.instance.prefabChanged -= OnPrefabChanged;
-                PrefabWatcher.instance.trailersChanged -= OnTrailersChanged;
+                PrefabWatcher.Instance.PrefabChanged -= OnPrefabChanged;
+                PrefabWatcher.Instance.TrailersChanged -= OnTrailersChanged;
             };
 
             CompileEffectsList();
@@ -317,7 +317,7 @@ namespace ExtendedAssetEditor.UI.Effects
                 if(m_vehicle.m_effects == null || index < 0 || index >= m_vehicle.m_effects.Length)
                     return;
 
-                /*ConfirmPanel.ShowModal(Mod.name, "Are you sure you want to remove the effect?", delegate (UIComponent comp, int ret)
+                /*ConfirmPanel.ShowModal(Mod.ModName, "Are you sure you want to remove the effect?", delegate (UIComponent comp, int ret)
                 {
                     if(ret == 1)
                     {

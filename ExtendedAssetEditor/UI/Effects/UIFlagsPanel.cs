@@ -36,7 +36,7 @@ namespace ExtendedAssetEditor.UI.Effects
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Flags Panel";
+            name = Mod.ModName + " Flags Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;

@@ -18,21 +18,21 @@ namespace ExtendedAssetEditor.UI
         public override void Start()
         {
             base.Start();
-            PrefabWatcher.instance.prefabBecameVehicle += () =>
+            PrefabWatcher.Instance.PrefabBecameVehicle += () =>
             {
                 Debug.Log("Prefab became vehicle");
                 isVisible = true;
             };
-            PrefabWatcher.instance.prefabWasVehicle += () =>
+            PrefabWatcher.Instance.PrefabWasVehicle += () =>
             {
                 Debug.Log("Prefab was vehicle");
                 isVisible = false;
             };
-            PrefabWatcher.instance.trailersChanged += (string[] names) =>
+            PrefabWatcher.Instance.TrailersChanged += (string[] names) =>
             {
                 Debug.Log("Trailers changed");
             };
-            PrefabWatcher.instance.prefabChanged += () =>
+            PrefabWatcher.Instance.PrefabChanged += () =>
             {
                 Debug.Log("Prefab changed");
             };

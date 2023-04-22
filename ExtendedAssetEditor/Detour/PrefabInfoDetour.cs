@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-
-namespace ExtendedAssetEditor.Detour
+﻿namespace ExtendedAssetEditor.Detour
 {
     /// <summary>
     /// Detours PrefabInfo methods
     /// </summary>
     public class PrefabInfoDetour : IDetour
     {
-        private DetourItem m_decorationAreaDetour;
+        private readonly DetourItem _decorationAreaDetour;
 
         public PrefabInfoDetour()
         {
             var original = typeof(PrefabInfo).GetMethod("GetDecorationArea");
             var replacement = GetType().GetMethod("GetDecorationArea");
-            m_decorationAreaDetour = new DetourItem("PrefabInfo.GetDecorationArea", original, replacement);
+            _decorationAreaDetour = new DetourItem("PrefabInfo.GetDecorationArea", original, replacement);
         }
 
         public void Deploy()
         {
-            m_decorationAreaDetour.Deploy();
+            _decorationAreaDetour.Deploy();
         }
 
         public void Revert()
         {
-            m_decorationAreaDetour.Revert();
+            _decorationAreaDetour.Revert();
         }
 
         public virtual void GetDecorationArea(out int width, out int length, out float offset)

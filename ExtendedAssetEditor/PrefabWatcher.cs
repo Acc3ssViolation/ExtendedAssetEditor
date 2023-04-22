@@ -1,90 +1,86 @@
 ﻿using ColossalFramework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace ExtendedAssetEditor
 {
     public class PrefabWatcher : MonoBehaviour
     {
-        public static PrefabWatcher instance { get; private set; }
+        public static PrefabWatcher Instance { get; private set; }
 
         public delegate void OnPrefabChanged();
         public delegate void OnTrailersChanged(string[] names);
 
-        public event OnPrefabChanged prefabBecameVehicle;
-        public event OnPrefabChanged prefabWasVehicle;
-        public event OnPrefabChanged prefabBecameBuilding;
-        public event OnPrefabChanged prefabWasBuilding;
-        public event OnPrefabChanged prefabBecameProp;
-        public event OnPrefabChanged prefabWasProp;
-        public event OnPrefabChanged prefabChanged;
-        public event OnTrailersChanged trailersChanged;
+        public event OnPrefabChanged PrefabBecameVehicle;
+        public event OnPrefabChanged PrefabWasVehicle;
+        public event OnPrefabChanged PrefabBecameBuilding;
+        public event OnPrefabChanged PrefabWasBuilding;
+        public event OnPrefabChanged PrefabBecameProp;
+        public event OnPrefabChanged PrefabWasProp;
+        public event OnPrefabChanged PrefabChanged;
+        public event OnTrailersChanged TrailersChanged;
 
-        private Type m_typeOfPrefab;
-        private string m_prefabName;
+        private Type _typeOfPrefab;
+        private string _prefabName;
+        private string[] _trailerNames;
 
-        private string[] m_trailerNames;
-
-        void Awake()
+        public void Awake()
         {
-            if(instance != null)
+            if(Instance != null)
             {
                 Debug.LogWarning("More than 1 PrefabWatcher active!");
                 return;
             }
-            m_trailerNames = new string[0];
-            instance = this;
+            _trailerNames = new string[0];
+            Instance = this;
         }
 
-        void LateUpdate()
+        public void LateUpdate()
         {
             ToolController properties = Singleton<ToolManager>.instance.m_properties;
             if(properties != null && properties.m_editPrefabInfo != null)
             {
-                if(m_typeOfPrefab != properties.m_editPrefabInfo.GetType())
+                if(_typeOfPrefab != properties.m_editPrefabInfo.GetType())
                 {
-                    if(m_typeOfPrefab == typeof(VehicleInfo))
+                    if(_typeOfPrefab == typeof(VehicleInfo))
                     {
-                        prefabWasVehicle?.Invoke();
+                        PrefabWasVehicle?.Invoke();
                     }
-                    else if(m_typeOfPrefab == typeof(BuildingInfo))
+                    else if(_typeOfPrefab == typeof(BuildingInfo))
                     {
-                        prefabWasBuilding?.Invoke();
+                        PrefabWasBuilding?.Invoke();
                     }
-                    else if(m_typeOfPrefab == typeof(PropInfo))
+                    else if(_typeOfPrefab == typeof(PropInfo))
                     {
-                        prefabWasProp?.Invoke();
+                        PrefabWasProp?.Invoke();
                     }
 
-                    m_typeOfPrefab = properties.m_editPrefabInfo.GetType();
+                    _typeOfPrefab = properties.m_editPrefabInfo.GetType();
 
-                    if(m_typeOfPrefab == typeof(VehicleInfo))
+                    if(_typeOfPrefab == typeof(VehicleInfo))
                     {
-                        prefabBecameVehicle?.Invoke();
+                        PrefabBecameVehicle?.Invoke();
                     }
-                    else if(m_typeOfPrefab == typeof(BuildingInfo))
+                    else if(_typeOfPrefab == typeof(BuildingInfo))
                     {
-                        prefabBecameBuilding?.Invoke();
+                        PrefabBecameBuilding?.Invoke();
                     }
-                    else if(m_typeOfPrefab == typeof(PropInfo))
+                    else if(_typeOfPrefab == typeof(PropInfo))
                     {
-                        prefabBecameProp?.Invoke();
+                        PrefabBecameProp?.Invoke();
                     }
                 }
 
-                if(m_prefabName != properties.m_editPrefabInfo.name)
+                if(_prefabName != properties.m_editPrefabInfo.name)
                 {
-                    m_prefabName = properties.m_editPrefabInfo.name;
-                    prefabChanged?.Invoke();
-                    Debug.Log(m_prefabName);
+                    _prefabName = properties.m_editPrefabInfo.name;
+                    PrefabChanged?.Invoke();
+                    Debug.Log(_prefabName);
                 }
 
                 int trailerCount = ((properties.m_editPrefabInfo as VehicleInfo)?.m_trailers != null) ? (properties.m_editPrefabInfo as VehicleInfo).m_trailers.Length : 0;
                 bool trailersHaveChanged = false;
-                if(m_trailerNames.Length != trailerCount)
+                if(_trailerNames.Length != trailerCount)
                 {
                     trailersHaveChanged = true;
                 }
@@ -92,7 +88,7 @@ namespace ExtendedAssetEditor
                 {
                     for(int i = 0; i < trailerCount; i++)
                     {
-                        if(m_trailerNames[i] != (properties.m_editPrefabInfo as VehicleInfo).m_trailers[i].m_info.name)
+                        if(_trailerNames[i] != (properties.m_editPrefabInfo as VehicleInfo).m_trailers[i].m_info.name)
                         {
                             trailersHaveChanged = true;
                             break;
@@ -101,12 +97,12 @@ namespace ExtendedAssetEditor
                 }               
                 if(trailersHaveChanged)
                 {
-                    m_trailerNames = new string[trailerCount];
+                    _trailerNames = new string[trailerCount];
                     for(int i = 0; i < trailerCount; i++)
                     {
-                        m_trailerNames[i] = (properties.m_editPrefabInfo as VehicleInfo).m_trailers[i].m_info.name;
+                        _trailerNames[i] = (properties.m_editPrefabInfo as VehicleInfo).m_trailers[i].m_info.name;
                     }
-                    trailersChanged?.Invoke(m_trailerNames);
+                    TrailersChanged?.Invoke(_trailerNames);
                 }
             }
         }

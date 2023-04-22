@@ -48,7 +48,7 @@ namespace ExtendedAssetEditor.UI
             width = WIDTH;
             height = HEIGHT;
             backgroundSprite = "MenuPanel2";
-            name = Mod.name + " Save Panel";
+            name = Mod.ModName + " Save Panel";
             canFocus = true;
             isInteractive = true;
             isVisible = false;

@@ -4,44 +4,44 @@ namespace ExtendedAssetEditor.Detour
 {
     public class DetourItem
     {
-        string name;
-        MethodInfo original;
-        MethodInfo detour;
-        RedirectCallsState state;
-        bool deployed;
+        private readonly string _name;
+        private readonly MethodInfo _original;
+        private readonly MethodInfo _detour;
+        private RedirectCallsState _state;
+        private bool _deployed;
 
-        public bool Deployed { get { return deployed; } }
+        public bool Deployed { get { return _deployed; } }
 
         public DetourItem(string name, MethodInfo original, MethodInfo detour)
         {
-            this.name = name;
-            this.original = original;
-            this.detour = detour;
+            _name = name;
+            _original = original;
+            _detour = detour;
         }
 
         public void Deploy()
         {
-            if(deployed || original == null || detour == null)
+            if(_deployed || _original == null || _detour == null)
             {
-                UnityEngine.Debug.LogWarning("Detour not possible for " + name);
+                UnityEngine.Debug.LogWarning("Detour not possible for " + _name);
                 return;
             }
 
-            deployed = true;
-            state = RedirectionHelper.RedirectCalls(original, detour);
+            _deployed = true;
+            _state = RedirectionHelper.RedirectCalls(_original, _detour);
 
-            UnityEngine.Debug.Log("DetourItem: Detoured " + name);
+            UnityEngine.Debug.Log("DetourItem: Detoured " + _name);
         }
 
         public void Revert()
         {
-            if(!deployed || original == null)
+            if(!_deployed || _original == null)
                 return;
 
-            deployed = false;
-            RedirectionHelper.RevertRedirect(original, state);
+            _deployed = false;
+            RedirectionHelper.RevertRedirect(_original, _state);
 
-            UnityEngine.Debug.Log("DetourItem: Reverted " + name);
+            UnityEngine.Debug.Log("DetourItem: Reverted " + _name);
         }
     }
 }

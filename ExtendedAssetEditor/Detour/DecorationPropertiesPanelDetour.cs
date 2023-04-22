@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using ColossalFramework.UI;
-using UnityEngine;
 using HarmonyLib;
 using System.Runtime.CompilerServices;
 
@@ -34,16 +31,11 @@ namespace ExtendedAssetEditor.Detour
                 new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(int), typeof(object), typeof(object) },
                 null);
 
-            var addFieldPost = typeof(DecorationPropertiesPanelDetour).GetMethod("AddField_Postfix", BindingFlags.Static | BindingFlags.Public);
+            var addFieldPost = typeof(DecorationPropertiesPanelDetour).GetMethod(nameof(AddField_Postfix), BindingFlags.Static | BindingFlags.Public);
 
             Util.Log("DecorationPropertiesPanel.TrySpawn is " + (addFieldSrc == null ? "null" : "not null"));
 
             harmony.Patch(addFieldSrc, new HarmonyMethod(addFieldPost), null);
-        }
-
-        public void Revert(Harmony harmony)
-        {
-            // TODO: Revert when possible
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
