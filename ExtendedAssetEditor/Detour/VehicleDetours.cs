@@ -1,75 +1,45 @@
 ﻿using ColossalFramework;
-using Epic.OnlineServices.Presence;
+using System;
 using UnityEngine;
+using static BuildingInfo;
 using static PathUnit;
+using static RenderManager;
 using static Vehicle;
 
 namespace ExtendedAssetEditor.Detour
 {
     internal static class VehicleDetours
     {
-        private static void RenderLodMesh(VehicleInfoBase info, Matrix4x4 tyreMatrix, Vector4 lightState, Vector4 tyrePosition, ref Matrix4x4 bodyMatrix)
+        private static void RenderLodMesh(VehicleInfoBase info, ref Matrix4x4 tyreMatrix, ref Vector4 lightState, ref Vector4 tyrePosition, Color color, ref Vector3 position, ref Matrix4x4 bodyMatrix)
         {
-            VehicleManager instance2 = Singleton<VehicleManager>.instance;
-            MaterialPropertyBlock materialBlock2 = instance2.m_materialBlock;
-            materialBlock2.Clear();
-            materialBlock2.SetMatrix(instance2.ID_TyreMatrix, tyreMatrix);
-            materialBlock2.SetVector(instance2.ID_TyrePosition, tyrePosition);
-            materialBlock2.SetVector(instance2.ID_LightState, lightState);
-            Mesh mesh = null;
-            Material material = null;
-            if (info.m_lodObject != null)
-            {
-                MeshFilter component = info.m_lodObject.GetComponent<MeshFilter>();
-                if (component != null)
-                {
-                    mesh = component.sharedMesh;
-                }
-
-                Renderer component2 = info.m_lodObject.GetComponent<Renderer>();
-                if (component2 != null)
-                {
-                    material = component2.sharedMaterial;
-                }
-            }
-
+            VehicleManager vehicleManager = Singleton<VehicleManager>.instance;
+            MaterialPropertyBlock matBlock = vehicleManager.m_materialBlock;
+            matBlock.Clear();
+            matBlock.SetMatrix(vehicleManager.ID_TyreMatrix, tyreMatrix);
+            matBlock.SetVector(vehicleManager.ID_TyrePosition, tyrePosition);
+            matBlock.SetVector(vehicleManager.ID_LightState, lightState);
+            Mesh mesh = info.m_lodMesh;
+            Material material = info.m_lodMaterial;
             if (mesh != null && material != null)
             {
-                materialBlock2.SetVectorArray(instance2.ID_TyreLocation, info.m_generatedInfo.m_tyres);
-                Graphics.DrawMesh(mesh, bodyMatrix, material, info.m_prefabDataLayer, null, 0, materialBlock2);
-            }
-        }
-
-        private static void RenderLodMesh(VehicleInfo info, Vector3 position, Quaternion rotation, Vector4 lightState, Vector4 tyrePosition, Flags flags, ref Vector3 scale, ref Matrix4x4 bodyMatrix)
-        {
-            Matrix4x4 value2 = info.m_vehicleAI.CalculateTyreMatrix(flags, ref position, ref rotation, ref scale, ref bodyMatrix);
-            VehicleManager instance2 = Singleton<VehicleManager>.instance;
-            MaterialPropertyBlock materialBlock2 = instance2.m_materialBlock;
-            materialBlock2.Clear();
-            materialBlock2.SetMatrix(instance2.ID_TyreMatrix, value2);
-            materialBlock2.SetVector(instance2.ID_TyrePosition, tyrePosition);
-            materialBlock2.SetVector(instance2.ID_LightState, lightState);
-            Mesh mesh = null;
-            Material material = null;
-            if (info.m_lodObject != null)
-            {
-                MeshFilter component = info.m_lodObject.GetComponent<MeshFilter>();
-                if (component != null)
+                matBlock.SetVectorArray(vehicleManager.ID_TyreLocation, info.m_generatedInfo.m_tyres);
+                if (!(info is VehicleInfo))
                 {
-                    mesh = component.sharedMesh;
+                    // Required for submeshes
+                    info.m_lodTransforms.SetValues(bodyMatrix);
+                    matBlock.SetMatrixArray(vehicleManager.ID_VehicleTransform, info.m_lodTransforms);
+                    info.m_lodLightStates.SetValues(lightState);
+                    matBlock.SetVectorArray(vehicleManager.ID_VehicleLightState, info.m_lodLightStates);
+                    info.m_lodColors.ForEachRef((ref Vector4 c) => c = color.linear);
+                    matBlock.SetVectorArray(vehicleManager.ID_VehicleColor, info.m_lodColors);
+                    info.m_lodMin = Vector3.Min(info.m_lodMin, position);
+                    info.m_lodMax = Vector3.Max(info.m_lodMax, position);
+                    Bounds bounds = new Bounds();
+                    bounds.SetMinMax(info.m_lodMin - new Vector3(100f, 100f, 100f), info.m_lodMax + new Vector3(100f, 100f, 100f));
+                    mesh.bounds = bounds;
                 }
-
-                Renderer component2 = info.m_lodObject.GetComponent<Renderer>();
-                if (component2 != null)
-                {
-                    material = component2.sharedMaterial;
-                }
-            }
-
-            if (mesh != null && material != null)
-            {
-                materialBlock2.SetVectorArray(instance2.ID_TyreLocation, info.m_generatedInfo.m_tyres);
-                Graphics.DrawMesh(mesh, bodyMatrix, material, info.m_prefabDataLayer, null, 0, materialBlock2);
+                
+                Graphics.DrawMesh(mesh, bodyMatrix, material, info.m_prefabDataLayer, null, 0, matBlock);
             }
         }
 
@@ -223,43 +193,46 @@ namespace ExtendedAssetEditor.Detour
             {
                 // The LOD rendering logic further down the method may not work, because the combined LOD meshes are not always present for the main meshes of editor assets.
                 // In case they are missing we will render them ourselves.
-                var missingCombinedLodMeshes = info.m_lodMeshCombined1 == null;
-                var useDefaultLodRendering = true;
+                var renderMainLodMeshEditor = true;
+                var tyreMatrix = info.m_vehicleAI.CalculateTyreMatrix(flags, ref position, ref rotation, ref scale, ref bodyMatrix2);
 
                 if (!useDefaultEditorRendering)
                 {
-                    if (missingCombinedLodMeshes && info.m_subMeshes != null)
+                    if (info.m_subMeshes != null)
                     {
-                        var tyreMatrix = info.m_vehicleAI.CalculateTyreMatrix(flags, ref position, ref rotation, ref scale, ref bodyMatrix2);
                         for (int l = 0; l < info.m_subMeshes.Length; l++)
                         {
-                            if (info.m_subMeshes[l].m_subInfo == null)
-                            {
-                                VehicleInfo.MeshInfo meshInfo = info.m_subMeshes[l];
-                                VehicleInfoBase subInfo = meshInfo.m_subInfo;
-                                if (((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None)
-                                {
-                                    if (subInfo == null)
-                                    {
-                                        continue;
-                                    }
+                            VehicleInfo.MeshInfo meshInfo = info.m_subMeshes[l];
+                            VehicleInfoBase subInfo = meshInfo.m_subInfo;
+                            //var missingCombinedLodMeshes = (subInfo != null) ? (subInfo.m_lodMeshCombined1 == null) : (info.m_lodMeshCombined1 == null);
 
-                                    RenderLodMesh(subInfo, tyreMatrix, lightState, tyrePosition, ref bodyMatrix2);
-                                }
-                                else if (subInfo == null)
+                            if (((meshInfo.m_vehicleFlagsRequired | meshInfo.m_vehicleFlagsForbidden) & flags) == meshInfo.m_vehicleFlagsRequired && (meshInfo.m_variationMask & variationMask) == 0 && meshInfo.m_parkedFlagsRequired == VehicleParked.Flags.None)
+                            {
+                                if (subInfo == null)
                                 {
-                                    // Main mesh should be hidden
-                                    useDefaultLodRendering = false;
+                                    // Main mesh should be shown. Render it now if we don't have the combined LOD meshes, render it later if we do.
+                                    renderMainLodMeshEditor = true;
+                                    continue;
                                 }
+
+                                // We only want to use this rendering when the combined meshes are missing
+                                RenderLodMesh(subInfo, ref tyreMatrix, ref lightState, ref tyrePosition, color, ref position, ref bodyMatrix2);
+                            }
+                            else if (subInfo == null)
+                            {
+                                // Main mesh should be hidden
+                                renderMainLodMeshEditor = false;
                             }
                         }
                     }
                 }
                 
-                if (useDefaultLodRendering)
+                if (renderMainLodMeshEditor)
                 {
-                    RenderLodMesh(info, position, rotation, lightState, tyrePosition, flags, ref scale, ref bodyMatrix2);
+                    RenderLodMesh(info, ref tyreMatrix, ref lightState, ref tyrePosition, color, ref position, ref bodyMatrix2);
                 }
+
+                return;
             }
             else if (Singleton<InfoManager>.instance.CurrentMode == InfoManager.InfoMode.None)
             {

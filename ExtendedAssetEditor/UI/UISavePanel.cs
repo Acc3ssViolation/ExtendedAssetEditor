@@ -36,6 +36,8 @@ namespace ExtendedAssetEditor.UI
         private List<string> m_snapshotPaths = new List<string>();
         private static readonly string[] m_extensions = Image.GetExtensions(Image.SupportedFileFormat.PNG);
         private FileSystemReporter[] m_fSReporter = new FileSystemReporter[m_extensions.Length];
+        private UICheckBox m_generateThumbnails;
+        private UICheckBox m_cleanNames;
         //
 
         private VehicleInfo m_info;
@@ -91,6 +93,17 @@ namespace ExtendedAssetEditor.UI
             m_nameField.width = 400;
             m_nameField.relativePosition = new Vector3(m_packageField.relativePosition.x, headerHeight + 40);
 
+            // Thumbnail generation checkbox
+            m_generateThumbnails = UIUtils.CreateCheckBox(this);
+            m_generateThumbnails.text = "Regenerate thumbnails";
+            m_generateThumbnails.relativePosition = new Vector3(10, headerHeight + 70);
+            m_generateThumbnails.tooltip = "Generate new thumbnails when saving the asset instead of using the existing ones";
+
+            // Name cleaning
+            m_cleanNames = UIUtils.CreateCheckBox(this);
+            m_cleanNames.text = "Clean names (Experimental)";
+            m_cleanNames.relativePosition = new Vector3(10, headerHeight + 100);
+            m_cleanNames.tooltip = "Clean up names of Unity objects in the asset";
 
             // Naming dropdown menu
             label = AddUIComponent<UILabel>();
@@ -332,27 +345,36 @@ namespace ExtendedAssetEditor.UI
 
             string[] steamTags = leadInfo.GetSteamTags();
 
+            // Generate thumnails for main asset
+            if (m_generateThumbnails.isChecked)
+            {
+                leadInfo.GenerateThumbnails();
+            }
+
             // Set up trailers
-            if(m_info.m_trailers != null && m_info.m_trailers.Length > 0)
+            if (m_info.m_trailers != null && m_info.m_trailers.Length > 0)
             {
                 // Keep track of added trailer prefabs to prevent duplicates
                 Dictionary<string, VehicleInfo> addedTrailers = new Dictionary<string, VehicleInfo>();
 
                 for(int i = 0; i < m_info.m_trailers.Length; i++)
                 {
-                    VehicleInfo trailerInfo;
-                    if(!addedTrailers.TryGetValue(m_info.m_trailers[i].m_info.name, out trailerInfo))
+                    if (!addedTrailers.TryGetValue(m_info.m_trailers[i].m_info.name, out VehicleInfo trailerInfo))
                     {
                         Debug.Log("Trailer " + m_info.m_trailers[i].m_info.name + " not yet in package " + packageName);
-
-                        // Trailer not yet added to package
                         trailerInfo = Util.InstantiateVehicleCopy(m_info.m_trailers[i].m_info);
+
+                        // Generate thumbnails for trailer
+                        if (m_generateThumbnails.isChecked)
+                        {
+                            trailerInfo.GenerateThumbnails();
+                        }
 
                         // Set placment mode to Procedural, this seems to be the only difference between engines (Automatic) and trailers (Procedural)
                         trailerInfo.m_placementStyle = ItemClass.Placement.Procedural;
 
                         // Include packagename in trailer, fixes Duplicate Prefab errors with multi .crp workshop uploads
-                        if(m_namingDropdown.selectedIndex == 0)
+                        if (m_namingDropdown.selectedIndex == 0)
                         {
                             // TrailerPackageName0
                             trailerInfo.name = "Trailer" + packageName + addedTrailers.Count;
@@ -367,17 +389,19 @@ namespace ExtendedAssetEditor.UI
                         // TODO: Figure out why this was ever added
                         // Fix for 1.6
                         var postFix = " " + packageName;
-                        try { trailerInfo.m_mesh.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("me"); } ;
-                        try { trailerInfo.m_lodMesh.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("lme"); };
-                        try { trailerInfo.m_material.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("m"); };
-                        try { trailerInfo.m_lodMaterial.name += postFix; } catch(Exception e) { Debug.LogException(e); Debug.Log("lm"); };
+                        try { trailerInfo.m_mesh.name += postFix; } catch (Exception e) { Debug.LogException(e); Debug.Log("me"); };
+                        try { trailerInfo.m_lodMesh.name += postFix; } catch (Exception e) { Debug.LogException(e); Debug.Log("lme"); };
+                        try { trailerInfo.m_material.name += postFix; } catch (Exception e) { Debug.LogException(e); Debug.Log("m"); };
+                        try { trailerInfo.m_lodMaterial.name += postFix; } catch (Exception e) { Debug.LogException(e); Debug.Log("lm"); };
 
                         // Needed because of the 'set engine' feature.
                         trailerInfo.m_trailers = null;
 
-                        // Add stuff to package
-                        //PackVariationMasksInSubMeshNames(trailerInfo);    // Don't actually do it for trailers, they should already have the name set correctly
-                        Util.CleanUpNames(trailerInfo.gameObject);
+                        // Add the trailer
+                        if (m_cleanNames.isChecked)
+                        {
+                            Util.CleanUpNames(trailerInfo);
+                        }
                         Package.Asset trailerAsset = package.AddAsset(trailerInfo.name, trailerInfo.gameObject);
 
                         AssetImporterAssetTemplate.GetAssetDLCMask(trailerInfo, out var expensionMask, out var modderMask);
@@ -391,10 +415,17 @@ namespace ExtendedAssetEditor.UI
                             timeStamp = DateTime.Now,
                             expansionMask = expensionMask,
                             modderPackMask = modderMask,
-                            mods = EmbedModInfo()
+                            mods = EmbedModInfo(),
                         }, UserAssetType.CustomAssetMetaData);
 
-                        // Don't need the locale
+                        // Create and add locale
+                        Locale trailerLocale = new Locale();
+                        trailerLocale.AddLocalizedString(new Locale.Key
+                        {
+                            m_Identifier = "VEHICLE_TITLE",
+                            m_Key = trailerInfo.name
+                        }, assetName + " Trailer " + addedTrailers.Count);
+                        package.AddAsset(trailerInfo.name + "_Locale", trailerLocale, false);
 
                         // Update dictonary
                         addedTrailers.Add(m_info.m_trailers[i].m_info.name, trailerInfo);
@@ -402,28 +433,18 @@ namespace ExtendedAssetEditor.UI
                         Debug.Log("Finished adding trailer " + trailerInfo.name + " to package " + packageName);
                     }
 
+                    // Update the lead info reference
                     leadInfo.m_trailers[i].m_info = trailerInfo;
                 }
             }
 
             // Add lead vehicle to package
-
-            var assetImport = FindObjectOfType<AssetImporterAssetImport>();
-            if(assetImport == null)
+            if (m_cleanNames)
             {
-                Util.LogWarning("Unable to find AssetImporterAssetImport object");
+                Util.CleanUpNames(leadInfo);
             }
-            else if(string.IsNullOrEmpty(leadInfo.m_Thumbnail)) // Regenerate thumbnails because they are pretty
-            {
-                var thumbnails = new Texture2D[5];
-                thumbnails[0] = null;
-                assetImport.m_PreviewCamera.target = leadInfo.gameObject;
-                AssetImporterThumbnails.CreateThumbnails(leadInfo.gameObject, null, assetImport.m_PreviewCamera);
-            }
-
             FixSubmeshInfoNames(leadInfo);
             PackVariationMasksInSubMeshNames(leadInfo);
-            Util.CleanUpNames(leadInfo.gameObject);
             Package.Asset leadAsset = package.AddAsset(assetName + "_Data", leadInfo.gameObject);
 
             // Previews

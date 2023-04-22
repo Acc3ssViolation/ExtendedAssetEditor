@@ -71,6 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrayExtensions.cs" />
     <Compile Include="CoroutineHelper.cs" />
     <Compile Include="Detour\DetourItem.cs" />
     <Compile Include="Detour\HarmonyDetours.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="DisplayOptions.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModLoadingExtension.cs" />
+    <Compile Include="PrefabInfoExtensions.cs" />
     <Compile Include="PrefabWatcher.cs" />
     <Compile Include="Detour\RenderingDetours.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

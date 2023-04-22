@@ -46,6 +46,7 @@ namespace ExtendedAssetEditor.UI
         private UIButton m_saveButton;
         private UIButton m_loadButton;
         private UIButton m_effectButton;
+        private UIButton m_thumbnailButton;
 
         private VehicleInfo m_mainVehicleInfo;
         private VehicleInfo m_selectedVehicleInfo;
@@ -426,14 +427,24 @@ namespace ExtendedAssetEditor.UI
             };
 
             // Effect panel button
-            m_effectButton = m_saveButton = UIUtils.CreateButton(this);
+            m_effectButton = UIUtils.CreateButton(this);
             m_effectButton.text = "Effect Editor";
-            m_effectButton.width = (WIDTH - 20);
+            m_effectButton.width = (WIDTH - 30) / 2;
             m_effectButton.relativePosition = new Vector3(10, m_lightPanel.relativePosition.y + 200);
             m_effectButton.eventClicked += (c, b) =>
             {
                 if(m_mainVehicleInfo != null && m_effectPanel != null)
                     m_effectPanel.Show();
+            };
+
+            // Thumbnail generate button (for testing)
+            m_thumbnailButton = UIUtils.CreateButton(this);
+            m_thumbnailButton.text = "Thumbnail";
+            m_thumbnailButton.width = (WIDTH - 30) / 2;
+            m_thumbnailButton.relativePosition = new Vector3(20 + m_effectButton.width, m_effectButton.relativePosition.y);
+            m_thumbnailButton.eventClicked += (c, b) =>
+            {
+                m_selectedVehicleInfo?.GenerateThumbnails();
             };
 
             // Save button

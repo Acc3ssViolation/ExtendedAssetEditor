@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ColossalFramework.UI;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -344,8 +345,9 @@ namespace ExtendedAssetEditor
             if (obj == null)
                 return;
 
-            var originalName = obj.name;
-            var name = obj.name.Replace("(Instance)", "");
+            var originalName = obj.name.ToString();
+            var name = obj.name.Replace("(Instance)", string.Empty);
+            name = name.Replace("(Clone)", string.Empty);
             name = WhiteSpaceCleanup.Replace(name, " ");
             obj.name = name.Trim();
 
@@ -356,15 +358,38 @@ namespace ExtendedAssetEditor
 
             if (obj is GameObject gameObject)
             {
-                foreach (var component in gameObject.GetComponentsInChildren<UnityEngine.Object>())
-                {
-                    CleanUpNames(component);
-                }
+                gameObject.GetComponentsInChildren<MeshFilter>().ForEach((c) => CleanUpNames(c));
+                gameObject.GetComponentsInChildren<Material>().ForEach((c) => CleanUpNames(c));
+                gameObject.GetComponentsInChildren<Renderer>().ForEach((c) => CleanUpNames(c));
+            }
+
+            if (obj is Material material)
+            {
+                CleanUpNames(material.mainTexture);
+            }
+
+            if (obj is MeshFilter meshFilter)
+            {
+                CleanUpNames(meshFilter.sharedMesh);
+                CleanUpNames(meshFilter.mesh);
+            }
+
+            if (obj is Renderer renderer)
+            {
+                renderer.materials.ForEach((c) => CleanUpNames(c));
+                renderer.sharedMaterials.ForEach((c) => CleanUpNames(c));
             }
 
             if (obj is VehicleInfoBase vehicleInfoBase)
             {
+                CleanUpNames(vehicleInfoBase.m_mesh);
+                CleanUpNames(vehicleInfoBase.m_material);
+                CleanUpNames(vehicleInfoBase.m_lodMesh);
+                CleanUpNames(vehicleInfoBase.m_lodMaterial);
                 CleanUpNames(vehicleInfoBase.m_lodObject);
+                CleanUpNames(vehicleInfoBase.gameObject);
+                CleanUpNames(vehicleInfoBase.m_undergroundMaterial);
+                CleanUpNames(vehicleInfoBase.m_undergroundLodMaterial);
             }
 
             if (obj is VehicleInfo vehicleInfo)
@@ -373,7 +398,7 @@ namespace ExtendedAssetEditor
                 {
                     foreach (var mesh in vehicleInfo.m_subMeshes)
                     {
-                        CleanUpNames(mesh.m_subInfo?.gameObject);
+                        CleanUpNames(mesh.m_subInfo);
                     }
                 }
             }

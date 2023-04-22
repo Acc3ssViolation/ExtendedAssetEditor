@@ -58,6 +58,7 @@ namespace ExtendedAssetEditor
                 _gameObject = new GameObject(Mod.ModName);
                 _gameObject.AddComponent<PrefabWatcher>();
                 _gameObject.AddComponent<SnapshotBehaviour>();
+                CreatePreviewCamera(_gameObject);
 
                 // UI
                 UIView view = UIView.GetAView();
@@ -82,6 +83,22 @@ namespace ExtendedAssetEditor
             }
         }
 
+        private void CreatePreviewCamera(GameObject gameObject)
+        {
+            // The camera is moved around, so we want it in its own child object
+            var cameraObject = new GameObject("Preview Camera");
+            cameraObject.transform.SetParent(gameObject.transform);
+
+            var sprite = cameraObject.AddComponent<UITextureSprite>();
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.cullingMask = 1073741824;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = Color.clear;
+            var previewCamera = cameraObject.AddComponent<PreviewCamera>();
+            previewCamera.SetPreview(sprite, new Vector2(AssetImporterThumbnails.thumbWidth, AssetImporterThumbnails.thumbHeight));
+            PrefabInfoExtensions.SetPreviewCamera(previewCamera);
+        }
+
         public override void OnLevelUnloading()
         {
             if(_gameObject != null)
@@ -91,6 +108,7 @@ namespace ExtendedAssetEditor
                     detour.Revert();
                 }
                 GameObject.Destroy(_gameObject);
+                PrefabInfoExtensions.SetPreviewCamera(null);
             }
             if(_uiObject != null)
             {
