@@ -85,6 +85,7 @@ namespace ExtendedAssetEditor.UI
             assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
             assetImporterAssetTemplate.Reset();
             assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
+            assetImporterAssetTemplate.component.BringToFront();
             m_selectRef.isVisible = true;
         }
 

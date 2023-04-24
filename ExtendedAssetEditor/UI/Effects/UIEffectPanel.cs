@@ -39,6 +39,7 @@ namespace ExtendedAssetEditor.UI.Effects
                 main = this;
 
             isVisible = true;
+            BringToFront();
         }
 
         public new void Hide()

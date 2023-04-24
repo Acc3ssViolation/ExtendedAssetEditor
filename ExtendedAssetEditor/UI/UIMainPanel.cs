@@ -300,6 +300,7 @@ namespace ExtendedAssetEditor.UI
                 {
                     assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
                 }
+                assetImporterAssetTemplate.component.BringToFront();
 
                 m_selectRef.isVisible = true;
             };
@@ -429,6 +430,7 @@ namespace ExtendedAssetEditor.UI
             // Effect panel button
             m_effectButton = UIUtils.CreateButton(this);
             m_effectButton.text = "Effect Editor";
+            m_effectButton.tooltip = "Open an editor window to change the effects attached to this vehicle.";
             m_effectButton.width = (WIDTH - 30) / 2;
             m_effectButton.relativePosition = new Vector3(10, m_lightPanel.relativePosition.y + 200);
             m_effectButton.eventClicked += (c, b) =>
@@ -440,16 +442,18 @@ namespace ExtendedAssetEditor.UI
             // Thumbnail generate button (for testing)
             m_thumbnailButton = UIUtils.CreateButton(this);
             m_thumbnailButton.text = "Thumbnail";
+            m_thumbnailButton.tooltip = "Regenerate the thumbnails for this vehicle. Note that the current light settings will influence the result!";
             m_thumbnailButton.width = (WIDTH - 30) / 2;
             m_thumbnailButton.relativePosition = new Vector3(20 + m_effectButton.width, m_effectButton.relativePosition.y);
             m_thumbnailButton.eventClicked += (c, b) =>
             {
-                m_selectedVehicleInfo?.GenerateThumbnails();
+                StartCoroutine(m_selectedVehicleInfo?.GenerateThumbnailsCoroutine());
             };
 
             // Save button
             m_saveButton = UIUtils.CreateButton(this);
             m_saveButton.text = "Save Asset";
+            m_saveButton.tooltip = "Open the save asset window. Make sure to use this button instead of the default one.";
             m_saveButton.width = (WIDTH - 30) / 2;
             m_saveButton.relativePosition = new Vector3(10, m_effectButton.relativePosition.y + m_effectButton.height + 10);
             m_saveButton.eventClicked += (c, b) => {
@@ -462,6 +466,7 @@ namespace ExtendedAssetEditor.UI
             // Load button
             m_loadButton = UIUtils.CreateButton(this);
             m_loadButton.text = "Load Asset";
+            m_loadButton.tooltip = "Load an asset. Make sure to use this button instead of the default one.";
             m_loadButton.width = (WIDTH - 30) / 2;
             m_loadButton.relativePosition = new Vector3(20 + m_saveButton.width, m_effectButton.relativePosition.y + m_effectButton.height + 10);
             m_loadButton.eventClicked += (c, b) =>
@@ -476,6 +481,7 @@ namespace ExtendedAssetEditor.UI
                 assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
                 assetImporterAssetTemplate.Reset();
                 assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
+                assetImporterAssetTemplate.component.BringToFront();
                 m_selectRef.isVisible = true;
             };
 

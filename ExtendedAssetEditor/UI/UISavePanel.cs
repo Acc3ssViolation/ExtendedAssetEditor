@@ -12,6 +12,8 @@ using ColossalFramework.Importers;
 using ColossalFramework.Threading;
 using ColossalFramework;
 using ColossalFramework.Plugins;
+using System.Collections;
+using UnityEngine.Networking.Types;
 
 namespace ExtendedAssetEditor.UI
 {
@@ -286,7 +288,7 @@ namespace ExtendedAssetEditor.UI
         {
             if(m_snapshotSprite.texture != null)
             {
-                GameObject.Destroy(m_snapshotSprite.texture);
+                Destroy(m_snapshotSprite.texture);
             }
             if(m_snapshotPaths.Count > 0)
             {
@@ -297,7 +299,7 @@ namespace ExtendedAssetEditor.UI
             }
             else
             {
-                m_snapshotSprite.texture = (UnityEngine.Object.Instantiate<Texture>(Resources.FindObjectsOfTypeAll<SaveAssetPanel>()[0].m_DefaultAssetPreviewTexture) as Texture2D);
+                m_snapshotSprite.texture = Instantiate(Resources.FindObjectsOfTypeAll<SaveAssetPanel>()[0].m_DefaultAssetPreviewTexture) as Texture2D;
                 m_snapshotLabel.text = "Press CTRL+ALT+S to take snapshot";
             }
         }
@@ -325,19 +327,25 @@ namespace ExtendedAssetEditor.UI
             // Start in the center of the screen
             UIView view = UIView.GetAView();
             relativePosition = new Vector3((view.fixedWidth - width) / 2, (view.fixedHeight - height) / 2);
-
+            BringToFront();
             m_info = info;
             isVisible = true;
         }
 
         private void SaveAsset(string assetName, string packageName)
         {
-            if(m_info == null || string.IsNullOrEmpty(assetName) || string.IsNullOrEmpty(packageName))
-                return;
+            m_saveButton.isEnabled = false;
+            StartCoroutine(SaveAssetCoroutine(assetName, packageName).Append(() => m_saveButton.isEnabled = true, this));
+        }
 
-            Debug.Log("Starting save for asset " + assetName + " in package " + packageName);
+        private IEnumerator SaveAssetCoroutine(string assetName, string packageName)
+        {
+            if (m_info == null || string.IsNullOrEmpty(assetName) || string.IsNullOrEmpty(packageName))
+                yield break;
 
-            Package package = new Package(packageName);
+            Util.Log($"Starting save for asset '{assetName}' in package {packageName}");
+
+            var package = new Package(packageName);
 
             // Create lead vehicle prefab object
             VehicleInfo leadInfo = Util.InstantiateVehicleCopy(m_info);
@@ -348,7 +356,7 @@ namespace ExtendedAssetEditor.UI
             // Generate thumnails for main asset
             if (m_generateThumbnails.isChecked)
             {
-                leadInfo.GenerateThumbnails();
+                yield return StartCoroutine(leadInfo.GenerateThumbnailsCoroutine());
             }
 
             // Set up trailers
@@ -367,7 +375,7 @@ namespace ExtendedAssetEditor.UI
                         // Generate thumbnails for trailer
                         if (m_generateThumbnails.isChecked)
                         {
-                            trailerInfo.GenerateThumbnails();
+                            yield return StartCoroutine(trailerInfo.GenerateThumbnailsCoroutine());
                         }
 
                         // Set placment mode to Procedural, this seems to be the only difference between engines (Automatic) and trailers (Procedural)
