@@ -23,13 +23,11 @@ namespace ExtendedAssetEditor.UI
 
             PrefabWatcher.Instance.PrefabBecameProp += () =>
             {
-                Debug.Log("Enabling UIPropPanel");
                 Show();
             };
 
             PrefabWatcher.Instance.PrefabWasProp += () =>
             {
-                Debug.Log("Disabling UIPropPanel");
                 Hide();
             };
 
@@ -75,16 +73,16 @@ namespace ExtendedAssetEditor.UI
             m_vehicleButton.relativePosition = new Vector3(10, headerHeight + 10);
             m_vehicleButton.eventClicked += (c, b) =>
             {
-                ImportVehicle();
+                OpenLoadAssetWindow(AssetImporterAssetTemplate.Filter.Vehicles);
             };
         }
 
-        void ImportVehicle()
+        private void OpenLoadAssetWindow(AssetImporterAssetTemplate.Filter filter)
         {
             var assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
             assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
             assetImporterAssetTemplate.Reset();
-            assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
+            assetImporterAssetTemplate.RefreshWithFilter(filter);
             assetImporterAssetTemplate.component.BringToFront();
             m_selectRef.isVisible = true;
         }
@@ -106,13 +104,13 @@ namespace ExtendedAssetEditor.UI
                         }
                         else
                         {
-                            Debug.LogError("Expected a PropInfo as m_editPrefabInfo but didn't get one!");
+                            Util.LogError("Expected a PropInfo as m_editPrefabInfo but didn't get one!");
                         }
                     }
                 }
                 else
                 {
-                    Debug.LogError("Expected a VehicleInfo but didn't get one!");
+                    Util.LogError("Expected a VehicleInfo but didn't get one!");
                 }
             }
             m_selectRef.isVisible = false;
@@ -200,7 +198,7 @@ namespace ExtendedAssetEditor.UI
             }
             else
             {
-                Debug.LogError("Could not get ACI map from material " + material.name);
+                Util.LogError("Could not get ACI map from material " + material.name);
             }
         }
     }

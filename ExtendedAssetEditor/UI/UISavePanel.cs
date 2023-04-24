@@ -369,7 +369,7 @@ namespace ExtendedAssetEditor.UI
                 {
                     if (!addedTrailers.TryGetValue(m_info.m_trailers[i].m_info.name, out VehicleInfo trailerInfo))
                     {
-                        Debug.Log("Trailer " + m_info.m_trailers[i].m_info.name + " not yet in package " + packageName);
+                        Util.Log($"Trailer '{m_info.m_trailers[i].m_info.name}' not yet in package '{packageName}'");
                         trailerInfo = Util.InstantiateVehicleCopy(m_info.m_trailers[i].m_info);
 
                         // Generate thumbnails for trailer
@@ -386,7 +386,7 @@ namespace ExtendedAssetEditor.UI
                         {
                             // TrailerPackageName0
                             trailerInfo.name = "Trailer" + packageName + addedTrailers.Count;
-                            Debug.Log("Renaming copy of trailer " + m_info.m_trailers[i].m_info.name + " to " + trailerInfo.name + " in package " + packageName);
+                            Util.Log($"Renaming copy of trailer '{m_info.m_trailers[i].m_info.name}' to '{trailerInfo.name}' in package '{packageName}'");
                         }
                         else
                         {
@@ -438,7 +438,7 @@ namespace ExtendedAssetEditor.UI
                         // Update dictonary
                         addedTrailers.Add(m_info.m_trailers[i].m_info.name, trailerInfo);
 
-                        Debug.Log("Finished adding trailer " + trailerInfo.name + " to package " + packageName);
+                        Util.Log($"Finished adding trailer '{trailerInfo.name}' to package '{packageName}'");
                     }
 
                     // Update the lead info reference
@@ -512,7 +512,7 @@ namespace ExtendedAssetEditor.UI
             // Save package to file
             package.Save(GetSavePathName(packageName));
 
-            Debug.Log("Finished save for asset " + assetName + " in package " + packageName);
+            Util.Log("Finished save for asset '{assetName}' in package '{packageName}'");
 
             m_info = null;
             isVisible = false;

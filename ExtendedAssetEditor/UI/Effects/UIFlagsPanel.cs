@@ -59,12 +59,10 @@ namespace ExtendedAssetEditor.UI.Effects
             {
                 if((checkedFlags & flags[i]) > 0)
                 {
-                    Debug.Log("True");
                     m_flagBoxDict[flags[i]].isChecked = true;
                 }
                 else
                 {
-                    Debug.Log("False");
                     m_flagBoxDict[flags[i]].isChecked = false;
                 }
             }
@@ -145,7 +143,6 @@ namespace ExtendedAssetEditor.UI.Effects
                         flags |= v.Value;
                     }
                 }
-                Debug.LogWarning(flags.ToString());
                 m_callback1.Invoke(flags);
             }
             else if(m_callback2 != null)
@@ -158,7 +155,6 @@ namespace ExtendedAssetEditor.UI.Effects
                         flags |= v.Value;
                     }
                 }
-                Debug.LogWarning(flags.ToString());
                 m_callback2.Invoke(flags);
             }
             isVisible = false;

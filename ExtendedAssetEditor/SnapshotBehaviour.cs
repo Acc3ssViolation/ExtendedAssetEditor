@@ -43,7 +43,7 @@ namespace ExtendedAssetEditor
                     }
                     tool.StartShot(w, h, () => {
                         ToolsModifierControl.toolController.CurrentTool = currentTool;
-                        Debug.Log("Snapshot taken");
+                        Util.Log("Snapshot taken");
                     });
                 });
 

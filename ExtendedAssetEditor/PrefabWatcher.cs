@@ -28,7 +28,7 @@ namespace ExtendedAssetEditor
         {
             if(Instance != null)
             {
-                Debug.LogWarning("More than 1 PrefabWatcher active!");
+                Util.LogWarning("More than 1 PrefabWatcher active!");
                 return;
             }
             _trailerNames = new string[0];
@@ -75,7 +75,7 @@ namespace ExtendedAssetEditor
                 {
                     _prefabName = properties.m_editPrefabInfo.name;
                     PrefabChanged?.Invoke();
-                    Debug.Log(_prefabName);
+                    Util.Log($"Prefab changed to '{_prefabName}'");
                 }
 
                 int trailerCount = ((properties.m_editPrefabInfo as VehicleInfo)?.m_trailers != null) ? (properties.m_editPrefabInfo as VehicleInfo).m_trailers.Length : 0;

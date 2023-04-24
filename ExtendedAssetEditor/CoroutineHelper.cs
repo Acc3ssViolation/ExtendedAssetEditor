@@ -30,7 +30,7 @@ namespace ExtendedAssetEditor
             }
             catch(Exception e)
             {
-                Debug.LogWarning("Exception running CoroutineHelper:\n" + e.Message + "\n" + e.StackTrace);
+                Util.LogWarning("Exception running CoroutineHelper:\n" + e.Message + "\n" + e.StackTrace);
             }
         }
         
@@ -59,7 +59,7 @@ namespace ExtendedAssetEditor
         public override void OnCreated(ILoading loading)
         {
             CoroutineHelper.CreateGameObject();
-            Debug.Log("Coroutine Helper Object created!");
+            Util.Log("Coroutine Helper Object created!");
         }
 
         public override void OnReleased()
@@ -67,7 +67,7 @@ namespace ExtendedAssetEditor
             if(CoroutineHelper.GameObject != null)
             {
                 GameObject.Destroy(CoroutineHelper.GameObject);
-                Debug.Log("Coroutine Helper Object destroyed!");
+                Util.Log("Coroutine Helper Object destroyed!");
             }
         }
     }

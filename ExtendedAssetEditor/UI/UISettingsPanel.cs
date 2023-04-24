@@ -62,7 +62,6 @@ namespace ExtendedAssetEditor.UI
                 m_leadVehicle = leadVehicle;
                 m_vehicle = (trailerIndex < 0) ? leadVehicle : leadVehicle.m_trailers[trailerIndex].m_info;
                 RefreshFields();
-                Debug.Log("Settings panel: Selected changed");
             };
 
 

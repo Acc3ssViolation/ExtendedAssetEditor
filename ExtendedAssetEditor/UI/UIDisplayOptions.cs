@@ -70,13 +70,11 @@ namespace ExtendedAssetEditor.UI
 
         private void OnBecameVehicle()
         {
-            Debug.Log("Prefab became vehicle");
             isVisible = true;
         }
 
         private void OnWasVehicle()
         {
-            Debug.Log("Prefab was vehicle");
             isVisible = false;
         }
 

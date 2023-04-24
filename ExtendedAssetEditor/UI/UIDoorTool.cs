@@ -62,8 +62,6 @@ namespace ExtendedAssetEditor.UI
                 m_mainInfo = v;
                 m_trailerIndex = i;
                 m_selectedInfo = (m_trailerIndex < 0) ? m_mainInfo : m_mainInfo.m_trailers[m_trailerIndex].m_info;
-
-                Debug.Log("Selected changed");
                 UpdateDoorList();
             };
             DisplayOptions.ActiveOptions.EventChanged += () =>

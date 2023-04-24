@@ -23,14 +23,14 @@ namespace ExtendedAssetEditor.Detour
         {
             if(_deployed || _original == null || _detour == null)
             {
-                UnityEngine.Debug.LogWarning("Detour not possible for " + _name);
+                Util.LogWarning("Detour not possible for " + _name);
                 return;
             }
 
             _deployed = true;
             _state = RedirectionHelper.RedirectCalls(_original, _detour);
 
-            UnityEngine.Debug.Log("DetourItem: Detoured " + _name);
+            Util.Log("DetourItem: Detoured " + _name);
         }
 
         public void Revert()
@@ -41,7 +41,7 @@ namespace ExtendedAssetEditor.Detour
             _deployed = false;
             RedirectionHelper.RevertRedirect(_original, _state);
 
-            UnityEngine.Debug.Log("DetourItem: Reverted " + _name);
+            Util.Log("DetourItem: Reverted " + _name);
         }
     }
 }

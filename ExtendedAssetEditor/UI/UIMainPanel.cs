@@ -77,7 +77,7 @@ namespace ExtendedAssetEditor.UI
             }
             else
             {
-                Debug.LogWarning("Multiple UIMainPanels for " + Mod.ModName);
+                Util.LogWarning("Multiple UIMainPanels for " + Mod.ModName);
             }
 
             base.Start();
@@ -116,23 +116,23 @@ namespace ExtendedAssetEditor.UI
             // Events
             PrefabWatcher.Instance.PrefabBecameVehicle += () =>
             {
-                Debug.Log("Prefab became vehicle");
+                Util.Log("Prefab became vehicle");
                 isVisible = true;
                 UpdateVehicleInfo();
             };
             PrefabWatcher.Instance.PrefabWasVehicle += () =>
             {
-                Debug.Log("Prefab was vehicle");
+                Util.Log("Prefab was vehicle");
                 isVisible = false;
             };
             PrefabWatcher.Instance.TrailersChanged += (string[] names) =>
             {
-                Debug.Log("Trailers changed");
+                Util.Log("Trailers changed");
                 UpdateVehicleInfo();
             };
             PrefabWatcher.Instance.PrefabChanged += () =>
             {
-                Debug.Log("Prefab changed");
+                Util.Log("Prefab changed");
                 UpdateVehicleInfo();
             };
 
@@ -275,34 +275,25 @@ namespace ExtendedAssetEditor.UI
                 }
 
                 m_changeTrailerIndex = m_vehicleDropdown.selectedIndex - 1;     // 0 is the engine, so we do -1 to get trailer index
-                m_selectRefReason = LoadPanelReason.Trailer;
-                AssetImporterAssetTemplate assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
-                assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
-                assetImporterAssetTemplate.Reset();
+                var filter = AssetImporterAssetTemplate.Filter.Vehicles;
                 // Get correct filter
                 if(m_mainVehicleInfo.m_vehicleAI as TramBaseAI != null)
                 {
-                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.TramTrailer);
+                    filter = AssetImporterAssetTemplate.Filter.TramTrailer;
                 }
                 else if(m_mainVehicleInfo.m_vehicleAI as TrainAI != null)
                 {
-                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.TrainCars);
+                    filter = AssetImporterAssetTemplate.Filter.TrainCars;
                 }
                 else if(m_mainVehicleInfo.m_vehicleAI as CarAI != null)
                 {
-                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.CarTrailers);
+                    filter = AssetImporterAssetTemplate.Filter.CarTrailers;
                 }
                 else if(m_mainVehicleInfo.m_vehicleAI as HelicopterAI != null)
                 {
-                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.HelicopterTrailer);
+                    filter = AssetImporterAssetTemplate.Filter.HelicopterTrailer;
                 }
-                else
-                {
-                    assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
-                }
-                assetImporterAssetTemplate.component.BringToFront();
-
-                m_selectRef.isVisible = true;
+                OpenLoadAssetWindow(filter, LoadPanelReason.Trailer);
             };
             m_changeTrailerButton.text = "Change";
             m_changeTrailerButton.tooltip = "Select a trailer asset to use for this trailer.";
@@ -476,13 +467,7 @@ namespace ExtendedAssetEditor.UI
                     return;
                 }
 
-                m_selectRefReason = LoadPanelReason.Full;
-                AssetImporterAssetTemplate assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
-                assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
-                assetImporterAssetTemplate.Reset();
-                assetImporterAssetTemplate.RefreshWithFilter(AssetImporterAssetTemplate.Filter.Vehicles);
-                assetImporterAssetTemplate.component.BringToFront();
-                m_selectRef.isVisible = true;
+                OpenLoadAssetWindow(AssetImporterAssetTemplate.Filter.Vehicles, LoadPanelReason.Full);
             };
 
             m_checkingEvents = true;
@@ -506,7 +491,7 @@ namespace ExtendedAssetEditor.UI
 
             if(m_trailersToInstantiate != null && m_mainVehicleInfo != null && m_mainVehicleInfo.m_trailers != null)
             {
-                Debug.Log("Restoring correct trailers for asset.");
+                Util.Log("Restoring correct trailers for asset");
                 for(int index = 0; index < m_trailersToInstantiate.Length; index++)
                 {
                     bool isInstantiated = false;
@@ -516,13 +501,13 @@ namespace ExtendedAssetEditor.UI
                         {
                             isInstantiated = true;
                             m_trailersToInstantiate[index].m_info = m_mainVehicleInfo.m_trailers[i].m_info;
-                            Debug.Log("Trailer " + m_trailersToInstantiate[index].m_info.name + " already loaded");
+                            Util.Log($"Trailer '{m_trailersToInstantiate[index].m_info.name}' already loaded");
                             break;
                         }
                     }
                     if(!isInstantiated)
                     {
-                        Debug.Log("Trailer " + m_trailersToInstantiate[index].m_info.name + " not yet loaded, instantiating...");
+                        Util.Log($"Trailer '{m_trailersToInstantiate[index].m_info.name}' not yet loaded, instantiating...");
                         m_trailersToInstantiate[index].m_info = Util.InstantiateVehicleCopy(m_trailersToInstantiate[index].m_info);
                     }
                     m_mainVehicleInfo.m_trailers[index] = m_trailersToInstantiate[index];
@@ -531,9 +516,20 @@ namespace ExtendedAssetEditor.UI
                     CheckMissingEffects(m_mainVehicleInfo.m_trailers[index].m_info);
                 }
                 Util.CopyTrailerColorFromMain();
-                Debug.Log("Instantiated all trailers!");
+                Util.Log("Instantiated all trailers!");
                 m_trailersToInstantiate = null;
             }
+        }
+
+        private void OpenLoadAssetWindow(AssetImporterAssetTemplate.Filter filter, LoadPanelReason reason)
+        {
+            m_selectRefReason = reason;
+            var assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
+            assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
+            assetImporterAssetTemplate.Reset();
+            assetImporterAssetTemplate.RefreshWithFilter(filter);
+            assetImporterAssetTemplate.component.BringToFront();
+            m_selectRef.isVisible = true;
         }
 
         private void OnConfirmLoad(PrefabInfo reference)
@@ -555,7 +551,7 @@ namespace ExtendedAssetEditor.UI
                                 str += t.m_info != null ? t.m_info.name : "NULL";
                                 str += "\r\n";
                             }
-                            Debug.Log(str);
+                            Util.Log(str);
 
                             m_trailersToInstantiate = new VehicleInfo.VehicleTrailer[vehicle.m_trailers.Length];
                             vehicle.m_trailers.CopyTo(m_trailersToInstantiate, 0);
@@ -570,17 +566,17 @@ namespace ExtendedAssetEditor.UI
                         bool isInstantiated = false;
                         for(int i = 0; i < m_mainVehicleInfo.m_trailers.Length; i++)
                         {
-                            if(vehicle.name == m_mainVehicleInfo.m_trailers[i].m_info.name)
+                            if (vehicle.name == m_mainVehicleInfo.m_trailers[i].m_info.name)
                             {
                                 isInstantiated = true;
                                 vehicle = m_mainVehicleInfo.m_trailers[i].m_info;
-                                Debug.Log("Trailer " + vehicle.name + " already loaded");
+                                Util.Log($"Trailer '{vehicle.name} ' already loaded");
                                 break;
                             }
                         }
                         if(!isInstantiated)
                         {
-                            Debug.Log("Trailer " + vehicle.name + " not yet loaded, instantiating...");
+                            Util.Log($"Trailer '{ vehicle.name}' not yet loaded, instantiating...");
                             vehicle = Util.InstantiateVehicleCopy(vehicle);
                         }
                         // Set the trailer
