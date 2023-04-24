@@ -275,7 +275,7 @@ namespace ExtendedAssetEditor.UI
                 string[] doorNames = new string[count];
                 for(int i = 0; i < count; i++)
                 {
-                    doorNames[i] = "Door " + i + " (" + m_selectedInfo.m_doors[i].m_type.ToString() + ")";
+                    doorNames[i] = $"Door {i} ({m_selectedInfo.m_doors[i].m_type})";
                 }
 
                 m_doorDropdown.items = doorNames;
@@ -348,6 +348,9 @@ namespace ExtendedAssetEditor.UI
 
         private void OnDoorSelectionChanged(UIComponent component, int value)
         {
+            if (m_doorDropdown.selectedIndex < 0)
+                return;
+
             if(m_selectedInfo != null)
             {
                 if(m_selectedInfo.m_doors != null && m_selectedInfo.m_doors.Length != 0)
