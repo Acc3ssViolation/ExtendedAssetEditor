@@ -95,7 +95,8 @@ namespace ExtendedAssetEditor
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = Color.clear;
             var previewCamera = cameraObject.AddComponent<PreviewCamera>();
-            previewCamera.SetPreview(sprite, new Vector2(AssetImporterThumbnails.thumbWidth, AssetImporterThumbnails.thumbHeight));
+            var superScaling = 4;
+            previewCamera.SetPreview(sprite, new Vector2(AssetImporterThumbnails.thumbWidth * superScaling, AssetImporterThumbnails.thumbHeight * superScaling));
             PrefabInfoExtensions.SetPreviewCamera(previewCamera);
         }
 
