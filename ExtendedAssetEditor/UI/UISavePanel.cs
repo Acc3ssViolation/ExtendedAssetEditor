@@ -512,7 +512,7 @@ namespace ExtendedAssetEditor.UI
             // Save package to file
             package.Save(GetSavePathName(packageName));
 
-            Util.Log("Finished save for asset '{assetName}' in package '{packageName}'");
+            Util.Log($"Finished save for asset '{assetName}' in package '{packageName}'");
 
             m_info = null;
             isVisible = false;
