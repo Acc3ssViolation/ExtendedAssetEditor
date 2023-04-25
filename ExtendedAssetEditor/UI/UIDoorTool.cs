@@ -266,7 +266,7 @@ namespace ExtendedAssetEditor.UI
                 g.SetActive(false);
             }
 
-            if(m_selectedInfo != null)
+            if(m_selectedInfo != null && m_doorDropdown != null)
             {
                 // Dropdown update
                 int selectedIndex = m_doorDropdown.selectedIndex;

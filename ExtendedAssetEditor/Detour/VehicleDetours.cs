@@ -22,7 +22,9 @@ namespace ExtendedAssetEditor.Detour
                 matBlock.SetVectorArray(vehicleManager.ID_TyreLocation, info.m_generatedInfo.m_tyres);
                 if (!(info is VehicleInfo))
                 {
-                    // Required for submeshes
+                    // For some reason trying to render a submesh will cause the main mesh to not render as well, hiding the submesh makes the main one visible again
+
+                    // Required for submeshes???
                     info.m_lodTransforms.SetValues(bodyMatrix);
                     matBlock.SetMatrixArray(vehicleManager.ID_VehicleTransform, info.m_lodTransforms);
                     info.m_lodLightStates.SetValues(lightState);
