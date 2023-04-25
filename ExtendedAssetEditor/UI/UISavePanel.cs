@@ -490,11 +490,12 @@ namespace ExtendedAssetEditor.UI
                 guid = Guid.NewGuid().ToString(),
                 // Type of this asset
                 type = CustomAssetMetaData.Type.Vehicle,
+                vehicleType = leadInfo.m_vehicleType,
                 // DLCs required for this asset
                 expansionMask = leadExpensionMask,
                 modderPackMask = leadModderMask,
                 // Mods active when making asset
-                mods = EmbedModInfo()
+                mods = EmbedModInfo(),
             }, UserAssetType.CustomAssetMetaData, false);
 
             // Set main asset to lead vehicle
