@@ -147,7 +147,14 @@ namespace ExtendedAssetEditor.Detour
             var variation = ~(1 << gateIndex);
 
             // NOTE: We use the VehicleDetours implementation which we need to render some things
-            VehicleDetours.RenderInstance(cameraInfo, info, position, rotation, Vector3.zero, Vector4.zero, Vector4.zero, Vector3.zero, 0f, info.m_color0, flags, variation, InstanceID.Empty, false, true);
+            if (DisplayOptions.ActiveOptions.UseGateIndex)
+            {
+                VehicleDetours.RenderInstance(cameraInfo, info, position, rotation, Vector3.zero, Vector4.zero, Vector4.zero, Vector3.zero, 0f, info.m_color0, flags, variation, InstanceID.Empty);
+            }
+            else
+            {
+                Vehicle.RenderInstance(cameraInfo, info, position, rotation, Vector3.zero, Vector4.zero, Vector4.zero, Vector3.zero, 0f, info.m_color0, flags, 0, variation, InstanceID.Empty, false, true);
+            }
             // End of VehicleInfo.RenderMesh
         }
     }
