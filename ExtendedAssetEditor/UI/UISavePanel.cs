@@ -447,7 +447,7 @@ namespace ExtendedAssetEditor.UI
             }
 
             // Add lead vehicle to package
-            if (m_cleanNames)
+            if (m_cleanNames.isChecked)
             {
                 Util.CleanUpNames(leadInfo);
             }
