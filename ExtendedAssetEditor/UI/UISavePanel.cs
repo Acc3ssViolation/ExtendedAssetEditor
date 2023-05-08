@@ -558,11 +558,13 @@ namespace ExtendedAssetEditor.UI
                         {
                             // Regular submesh, store it on the submesh mesh
                             submesh.m_subInfo.m_mesh.name = "TrailerVariation " + submesh.m_variationMask;
+                            Util.Log($"'{info.name}': Saved submesh variation mask as '{submesh.m_subInfo.m_mesh.name}'");
                         }
                         else if (submesh.m_subInfo == null && info.m_mesh != null)
                         {
                             // Info for main mesh, dump it on the main model mesh
                             info.m_mesh.name = "TrailerVariation " + submesh.m_variationMask;
+                            Util.Log($"'{info.name}': Saved mesh variation mask as '{info.m_mesh.name}'");
                         }
                     }
                 }
