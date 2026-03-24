@@ -16,9 +16,9 @@ namespace ExtendedAssetEditor.Detour
 
         public DecorationPropertiesPanelDetour()
         {
-            // private UIComponent AddField(UIComponent container, string locale, float width, Type type, string name, object target, object initialValue)
+            // private UIComponent AddField(UIComponent container, string locale, float width, Type type, string name, object target, object initialValue, string tooltipText = "")
             addFieldInfo = typeof(DecorationPropertiesPanel).GetMethod("AddField", BindingFlags.NonPublic | BindingFlags.Instance, null,
-                new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(object), typeof(object) }, 
+                new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(object), typeof(object), typeof(string) }, 
                 null);
 
             Util.Log("AddField MethodInfo exists: " + (addFieldInfo != null).ToString());
@@ -26,14 +26,14 @@ namespace ExtendedAssetEditor.Detour
 
         public void Deploy(Harmony harmony)
         {
-            // private UIComponent AddField(UIComponent container, string locale, float width, Type type, string name, int arrayIndex, object target, object initialValue)
+            // private UIComponent AddField(UIComponent container, string locale, float width, Type type, string name, int arrayIndex, object target, object initialValue, string tooltipText = "")
             var addFieldSrc = typeof(DecorationPropertiesPanel).GetMethod("AddField", BindingFlags.NonPublic | BindingFlags.Instance, null,
-                new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(int), typeof(object), typeof(object) },
+                new Type[] { typeof(UIComponent), typeof(string), typeof(float), typeof(Type), typeof(string), typeof(int), typeof(object), typeof(object), typeof(string) },
                 null);
 
             var addFieldPost = typeof(DecorationPropertiesPanelDetour).GetMethod(nameof(AddField_Postfix), BindingFlags.Static | BindingFlags.Public);
 
-            Util.Log("DecorationPropertiesPanel.TrySpawn is " + (addFieldSrc == null ? "null" : "not null"));
+            Util.Log("DecorationPropertiesPanel.AddField is " + (addFieldSrc == null ? "null" : "not null"));
 
             harmony.Patch(addFieldSrc, new HarmonyMethod(addFieldPost), null);
         }
@@ -41,7 +41,7 @@ namespace ExtendedAssetEditor.Detour
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void AddField_Postfix(DecorationPropertiesPanel __instance, UIComponent container, string locale, Type type, float width, string name, object target)
         {
-            var wasMainMeshField = type == typeof(Vehicle.Flags) && name == "m_vehicleFlagsForbidden" && locale.StartsWith("Hide Main Mesh Cond.", StringComparison.CurrentCultureIgnoreCase);
+            var wasMainMeshField = type == typeof(Vehicle.Flags) && name == "m_vehicleFlagsForbidden" && locale != null && locale.StartsWith("Hide Main Mesh Cond.", StringComparison.CurrentCultureIgnoreCase);
             var wasSubMeshField = type == typeof(VehicleInfo.MeshInfo);
             var variationLocale = wasMainMeshField ? "Main Mesh Variation" : "Variation";
             if (wasMainMeshField || wasSubMeshField)
@@ -51,7 +51,7 @@ namespace ExtendedAssetEditor.Detour
                 var fieldName = nameof(info.m_variationMask);
                 var hasVariationField = IsFieldReferenceAdded(container, fieldName);
                 if (!hasVariationField)
-                    addFieldInfo.Invoke(__instance, new object[] { container, variationLocale, width, typeof(int), fieldName, target, info.m_variationMask });
+                    addFieldInfo.Invoke(__instance, new object[] { container, variationLocale, width, typeof(int), fieldName, target, info.m_variationMask, "Submesh variant field, check EAE mod docs for details" });
                 else if (info.m_subInfo != null)
                     Util.Log($"Variation field was already added for submesh '{info.m_subInfo.name}'");
                 else

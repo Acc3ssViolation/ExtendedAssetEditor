@@ -525,9 +525,9 @@ namespace ExtendedAssetEditor.UI
         {
             m_selectRefReason = reason;
             var assetImporterAssetTemplate = m_selectRef.GetComponent<AssetImporterAssetTemplate>();
-            assetImporterAssetTemplate.ReferenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
+            var referenceCallback = new AssetImporterAssetTemplate.ReferenceCallbackDelegate(OnConfirmLoad);
             assetImporterAssetTemplate.Reset();
-            assetImporterAssetTemplate.RefreshWithFilter(filter);
+            assetImporterAssetTemplate.RefreshWithFilter(filter, callback: referenceCallback);
             assetImporterAssetTemplate.component.BringToFront();
             m_selectRef.isVisible = true;
         }
